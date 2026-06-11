@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /database/
+Disallow: /setup.php
+Disallow: /includes/
+
+Sitemap: http://localhost/cac/sitemap.xml

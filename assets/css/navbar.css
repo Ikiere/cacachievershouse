@@ -1,0 +1,49 @@
+/*
+ * navbar.css — Admin / secondary pages navbar only
+ * Main site navbar is handled by style.css
+ */
+
+/* Admin navbar (used in admin panel pages) */
+.navbar {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    z-index: 1000;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #0f172a;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.nav-btn-2 {
+    background: #2563eb;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
+@media (max-width: 900px) {
+    .nav-menu,
+    .nav-btn-2 {
+        display: none;
+    }
+}
