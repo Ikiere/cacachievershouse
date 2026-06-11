@@ -1,4 +1,5 @@
+---
 deployment:
   tasks:
     - export DEPLOYPATH=/home/waileiro/cacachievershouse.org.uk/
-    - /bin/cp -R * $DEPLOYPATH
+    - /usr/bin/rsync -rlptD --delete-after --exclude='.git' --exclude='.cpanel.yml' --exclude='.gitignore' ./ $DEPLOYPATH
