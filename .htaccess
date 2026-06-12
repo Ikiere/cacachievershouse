@@ -1,0 +1,71 @@
+# ==============================================================
+# CAC ACHIEVERS HOUSE — ROOT .htaccess
+# Apache / LiteSpeed — cPanel Shared Hosting
+# ==============================================================
+
+# --- Default index file ---------------------------------------------
+DirectoryIndex index.php index.html
+
+# --- Disable directory listing --------------------------------------
+Options -Indexes
+
+# --- Ensure PHP files are processed ---------------------------------
+<IfModule mod_mime.c>
+    AddType application/x-httpd-php .php
+</IfModule>
+
+# --- Security headers -----------------------------------------------
+<IfModule mod_headers.c>
+    # Prevent MIME-type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    # Block page from being framed (clickjacking protection)
+    Header set X-Frame-Options "SAMEORIGIN"
+    # Enable XSS filter
+    Header set X-XSS-Protection "1; mode=block"
+    # Referrer policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# --- Block access to hidden and sensitive files ---------------------
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# --- Block access to backup and config files ------------------------
+<FilesMatch "\.(sql|log|bak|env|ini|sh|yml)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# --- UTF-8 encoding -------------------------------------------------
+AddDefaultCharset UTF-8
+
+# --- Compress text-based assets -------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# --- Browser caching ------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css                 "access plus 1 month"
+    ExpiresByType application/javascript   "access plus 1 month"
+    ExpiresByType image/jpeg               "access plus 1 year"
+    ExpiresByType image/png                "access plus 1 year"
+    ExpiresByType image/webp               "access plus 1 year"
+    ExpiresByType image/svg+xml            "access plus 1 year"
+    ExpiresByType font/woff2               "access plus 1 year"
+</IfModule>
