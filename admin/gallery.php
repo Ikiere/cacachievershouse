@@ -27,12 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
         $error = "File size must be under 5MB.";
     } else {
         // Strip EXIF metadata & Rename file securely
-        $ext = match($file['type']) {
-            'image/jpeg' => 'jpg',
-            'image/png'  => 'png',
-            'image/webp' => 'webp',
-            default      => 'jpg'
-        };
+        switch ($file['type']) {
+            case 'image/png':  $ext = 'png';  break;
+            case 'image/webp': $ext = 'webp'; break;
+            default:           $ext = 'jpg';  break;
+        }
 
         $new_filename = time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
         $target_path = '../assets/gallery/' . $new_filename;

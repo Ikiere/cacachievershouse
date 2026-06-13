@@ -58,7 +58,7 @@ if ($sres) {
         $s[$row['setting_key']] = $row['setting_value'];
     }
 }
-$get = fn($k, $d = '') => $s[$k] ?? $d;
+$get = function($k, $d = '') use (&$s) { return $s[$k] ?? $d; };
 
 $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
 ?>
@@ -454,11 +454,11 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                 <?php if ($events_result && $events_result->num_rows > 0):
                     $events_result->data_seek(0);
                     while ($ev = $events_result->fetch_assoc()):
-                        $badgeClass = match($ev['status']) {
-                            'upcoming' => 'upcoming',
-                            'planning' => 'planning',
-                            default    => 'past'
-                        };
+                        switch ($ev['status']) {
+                            case 'upcoming': $badgeClass = 'upcoming'; break;
+                            case 'planning': $badgeClass = 'planning'; break;
+                            default:         $badgeClass = 'past';     break;
+                        }
                 ?>
                 <div class="event-card">
                     <div class="event-card-header">
