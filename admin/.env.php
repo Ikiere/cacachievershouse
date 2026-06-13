@@ -7,8 +7,8 @@
 
 return [
     'db_host'     => 'localhost',
-    'db_username' => 'root',
-    'db_password' => '',
-    'db_name'     => 'cac',
+    'db_username' => 'waileiro_cac',
+    'db_password' => 'Fathergod@123',
+    'db_name'     => 'waileiro_cac',
     'db_charset'  => 'utf8mb4',
 ];
