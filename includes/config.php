@@ -1,19 +1,53 @@
 <?php
 // ============================================================
 // DATABASE CONNECTION
+// includes/config.php
+//
+// Auto-detects environment:
+//   LOCAL  → uses XAMPP defaults
+//   PROD   → loads credentials from admin/.env.php
 // ============================================================
-$servername = "localhost";
-$username   = "root";
-$password   = "";
-$dbname     = "cac";
 
-$conn = @new mysqli($servername, $username, $password, $dbname);
+// --- Detect environment --------------------------------------------
+$isLocal = in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1'])
+        || in_array($_SERVER['HTTP_HOST']   ?? '', ['localhost', '127.0.0.1'])
+        || (PHP_OS_FAMILY === 'Windows');
 
-if ($conn->connect_error) {
-    die("Database connection failed. Please check your credentials: " . $conn->connect_error);
+// --- Load credentials ----------------------------------------------
+if ($isLocal) {
+    $env = [
+        'db_host'     => 'localhost',
+        'db_username' => 'root',
+        'db_password' => '',
+        'db_name'     => 'cac',
+        'db_charset'  => 'utf8mb4',
+    ];
+} else {
+    $envPath = __DIR__ . '/../admin/.env.php';
+
+    if (!file_exists($envPath)) {
+        http_response_code(503);
+        die('Server configuration error. The environment file is missing.');
+    }
+
+    $env = require $envPath;
 }
 
-$conn->set_charset("utf8mb4");
+// --- Connect to MySQL ----------------------------------------------
+$conn = @new mysqli(
+    $env['db_host'],
+    $env['db_username'],
+    $env['db_password'],
+    $env['db_name']
+);
+
+if ($conn->connect_error) {
+    error_log('DB connection failed: ' . $conn->connect_error);
+    http_response_code(503);
+    die('Database connection failed. Please try again later.');
+}
+
+$conn->set_charset($env['db_charset'] ?? 'utf8mb4');
 
 // ============================================================
 // BASE URL — auto-detect subdirectory vs domain root

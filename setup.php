@@ -1,8 +1,7 @@
 <?php
 // One-time DB repair + setup script — DELETE THIS FILE AFTER RUNNING
-$conn = new mysqli('localhost', 'root', '', 'cac');
-if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); }
-$conn->set_charset('utf8mb4');
+require __DIR__ . '/admin/config.php';
+// $conn is now automatically provided by config.php
 
 $results = [];
 
