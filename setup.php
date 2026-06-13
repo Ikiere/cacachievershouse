@@ -69,11 +69,55 @@ $tables = [
         `created_at` DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+    "sermons" => "CREATE TABLE IF NOT EXISTS `sermons` (
+        `id`          INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+        `title`       VARCHAR(255)     NOT NULL,
+        `series`      VARCHAR(255),
+        `speaker`     VARCHAR(120)     NOT NULL,
+        `sermon_date` DATE             NOT NULL,
+        `audio_file`  VARCHAR(255),
+        `video_url`   VARCHAR(255),
+        `created_at`  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+    "testimonials" => "CREATE TABLE IF NOT EXISTS `testimonials` (
+        `id`          INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+        `name`        VARCHAR(120)     NOT NULL,
+        `role`        VARCHAR(120),
+        `quote`       TEXT             NOT NULL,
+        `photo_url`   VARCHAR(255),
+        `is_active`   TINYINT(1)       NOT NULL DEFAULT 1,
+        `sort_order`  INT              NOT NULL DEFAULT 0,
+        `created_at`  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+    "site_settings" => "CREATE TABLE IF NOT EXISTS `site_settings` (
+        `id`            INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+        `setting_key`   VARCHAR(100)     NOT NULL UNIQUE,
+        `setting_value` TEXT,
+        `updated_at`    DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 ];
+
+// Add default site settings
+$default_settings = "INSERT IGNORE INTO `site_settings` (`setting_key`, `setting_value`) VALUES
+    ('site_name',        'CAC Achievers House'),
+    ('site_tagline',     'Where Faith Meets Destiny'),
+    ('primary_color',    '#f97316');";
 
 foreach ($tables as $name => $sql) {
     $r = $conn->query($sql);
     $results[] = $r ? "✅ Table '$name' ready" : "❌ Table '$name' error: " . $conn->error;
+}
+
+if ($conn->query($default_settings)) {
+    $results[] = "✅ Default site settings populated";
+} else {
+    $results[] = "❌ Default site settings error: " . $conn->error;
 }
 
 // Step 3: Insert default admin
