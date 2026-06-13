@@ -1,0 +1,19 @@
+# ==============================================================
+# GIT IGNORE — CAC Achievers House
+# ==============================================================
+
+# Environment credentials (server-specific, never commit)
+admin/.env.php
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
