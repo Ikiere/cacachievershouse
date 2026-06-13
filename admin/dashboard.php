@@ -11,36 +11,58 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
+// ── Safe query helpers ─────────────────────────────────────────
+/**
+ * Run a COUNT query safely. Returns 0 if the table doesn't exist yet.
+ */
+function db_count(mysqli $db, string $sql): int {
+    $res = @$db->query($sql);
+    if (!$res) return 0;
+    $row = $res->fetch_assoc();
+    return (int) ($row['n'] ?? 0);
+}
+
+/**
+ * Run a SELECT query safely. Returns false if the table doesn't exist yet.
+ */
+function db_select(mysqli $db, string $sql) {
+    $res = @$db->query($sql);
+    return ($res && $res instanceof mysqli_result) ? $res : false;
+}
+
 // ── Data queries ───────────────────────────────────────────────
 $admin_name  = htmlspecialchars($_SESSION['admin_name'] ?? 'Administrator');
 $admin_email = htmlspecialchars($_SESSION['admin_email'] ?? '');
 $admin_role  = $_SESSION['admin_role'] ?? 'editor';
 $avatar_char = strtoupper(substr($admin_name, 0, 1));
 
-$members_count  = $conn->query("SELECT COUNT(*) as n FROM admins")->fetch_assoc()['n'];
-$events_count   = $conn->query("SELECT COUNT(*) as n FROM events WHERE status='upcoming'")->fetch_assoc()['n'];
-$gallery_count  = $conn->query("SELECT COUNT(*) as n FROM gallery")->fetch_assoc()['n'];
-$messages_count = $conn->query("SELECT COUNT(*) as n FROM contacts WHERE is_read=0")->fetch_assoc()['n'];
+$members_count  = db_count($conn, "SELECT COUNT(*) as n FROM admins");
+$events_count   = db_count($conn, "SELECT COUNT(*) as n FROM events WHERE status='upcoming'");
+$gallery_count  = db_count($conn, "SELECT COUNT(*) as n FROM gallery");
+$messages_count = db_count($conn, "SELECT COUNT(*) as n FROM contacts WHERE is_read=0");
+$sermons_count  = db_count($conn, "SELECT COUNT(*) as n FROM sermons");
+$testimonials_count = db_count($conn, "SELECT COUNT(*) as n FROM testimonials");
 
-$events_result   = $conn->query("SELECT * FROM events ORDER BY start_date DESC LIMIT 12");
-$gallery_result  = $conn->query("SELECT * FROM gallery ORDER BY uploaded_at DESC LIMIT 18");
-$members_result  = $conn->query("SELECT * FROM admins ORDER BY created_at DESC");
-$messages_result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC LIMIT 20");
-$sermons_result  = $conn->query("SELECT * FROM sermons ORDER BY sermon_date DESC LIMIT 50");
-$sermons_count   = $conn->query("SELECT COUNT(*) as n FROM sermons")->fetch_assoc()['n'];
-$testimonials_result = $conn->query("SELECT * FROM testimonials ORDER BY sort_order ASC, created_at DESC");
-$testimonials_count  = $conn->query("SELECT COUNT(*) as n FROM testimonials")->fetch_assoc()['n'];
+$events_result      = db_select($conn, "SELECT * FROM events ORDER BY start_date DESC LIMIT 12");
+$gallery_result     = db_select($conn, "SELECT * FROM gallery ORDER BY uploaded_at DESC LIMIT 18");
+$members_result     = db_select($conn, "SELECT * FROM admins ORDER BY created_at DESC");
+$messages_result    = db_select($conn, "SELECT * FROM contacts ORDER BY created_at DESC LIMIT 20");
+$sermons_result     = db_select($conn, "SELECT * FROM sermons ORDER BY sermon_date DESC LIMIT 50");
+$testimonials_result = db_select($conn, "SELECT * FROM testimonials ORDER BY sort_order ASC, created_at DESC");
 
-// Site settings
-$s = [];
-$sres = $conn->query("SELECT setting_key, setting_value FROM site_settings");
-while ($row = $sres->fetch_assoc()) {
-    $s[$row['setting_key']] = $row['setting_value'];
+// ── Site settings ──────────────────────────────────────────────
+$s    = [];
+$sres = db_select($conn, "SELECT setting_key, setting_value FROM site_settings");
+if ($sres) {
+    while ($row = $sres->fetch_assoc()) {
+        $s[$row['setting_key']] = $row['setting_value'];
+    }
 }
 $get = fn($k, $d = '') => $s[$k] ?? $d;
 
 $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
