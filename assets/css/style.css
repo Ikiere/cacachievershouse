@@ -1955,6 +1955,116 @@ footer hr {
     .about-strip-grid { grid-template-columns: 1fr; }
 }
 
+/* ============================================================
+   DYNAMIC EMPTY STATES & THUMBNAILS (Events/Testimonials)
+   ============================================================ */
+.events-empty, .testimonials-empty {
+    padding: 4rem 2rem;
+    text-align: center;
+    background: #fff;
+    border: 1px dashed var(--border-blue);
+    border-radius: var(--r-xl);
+    max-width: 600px;
+    margin: 3rem auto;
+    box-shadow: var(--shadow-sm);
+}
+.events-empty-icon, .testimonials-empty-icon {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+.events-empty h3, .testimonials-empty h3 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--text-navy);
+    margin-bottom: 0.5rem;
+}
+.events-empty p, .testimonials-empty p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Event Thumbnails */
+.event-featured-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--grad-navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    color: rgba(255,255,255,0.1);
+}
+.event-card-thumb {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+    border-bottom: 1px solid var(--border-light);
+}
+.event-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s var(--ease);
+}
+.event-card:hover .event-card-thumb img {
+    transform: scale(1.05);
+}
+.event-card-body {
+    padding: 1.5rem 2rem 2.5rem;
+}
+
+/* Event Badges */
+.featured-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+.event-status-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--r-pill);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.event-status-badge.upcoming { background: #10B981; color: #fff; }
+.event-status-badge.planning { background: #F59E0B; color: #fff; }
+.event-status-badge.past { background: #64748B; color: #fff; }
+.event-status-badge.cancelled { background: #EF4444; color: #fff; }
+
+.event-type-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--r-pill);
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.event-venue {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    opacity: 0.8;
+}
+.event-card-venue {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
 @media (max-width: 480px) {
     .footer-grid { grid-template-columns: 1fr; }
     .hero-stat strong { font-size: 1.8rem; }

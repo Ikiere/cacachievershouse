@@ -348,72 +348,125 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
             Join us for these special gatherings and experience God's presence
         </p>
 
+        <?php
+        // Re-fetch into array so we can use freely
+        $events_list = [];
+        if ($events_result && $events_result->num_rows > 0) {
+            $events_result->data_seek(0);
+            while ($ev = $events_result->fetch_assoc()) {
+                $events_list[] = $ev;
+            }
+        }
+        $featured_event = $events_list[0] ?? null;
+        ?>
+
+        <?php if (empty($events_list)): ?>
+        <!-- ── EMPTY STATE ── -->
+        <div class="events-empty reveal">
+            <div class="events-empty-icon">
+                <i class="bx bx-calendar-x"></i>
+            </div>
+            <h3>No Upcoming Events</h3>
+            <p>We're planning something amazing. Check back soon or follow us on social media for announcements.</p>
+            <a href="<?= htmlspecialchars(get_setting('facebook_url','#')) ?>" class="btn-navy" style="margin-top:1rem;">
+                <i class="bx bxl-facebook"></i> Follow Us for Updates
+            </a>
+        </div>
+
+        <?php else: ?>
         <div class="events-grid">
 
+            <!-- Featured Event -->
             <div class="event-featured reveal">
-                <img src="https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?w=900&q=80"
-                     alt="Revival Conference" loading="lazy">
+                <?php
+                $feat_img = '';
+                if (!empty($featured_event['image']) && file_exists(__DIR__ . '/assets/events/' . $featured_event['image'])) {
+                    $feat_img = 'assets/events/' . htmlspecialchars($featured_event['image']);
+                } elseif (!empty($featured_event['image'])) {
+                    $feat_img = htmlspecialchars($featured_event['image']);
+                }
+                ?>
+                <?php if ($feat_img): ?>
+                <img src="<?= $feat_img ?>" alt="<?= htmlspecialchars($featured_event['title']) ?>" loading="lazy">
+                <?php else: ?>
+                <div class="event-featured-placeholder">
+                    <i class="bx bx-calendar-star"></i>
+                </div>
+                <?php endif; ?>
+
                 <div class="featured-overlay">
+                    <div class="featured-badges">
+                        <span class="event-status-badge <?= htmlspecialchars($featured_event['status']) ?>">
+                            <?= ucfirst($featured_event['status']) ?>
+                        </span>
+                        <?php if ($featured_event['event_type']): ?>
+                        <span class="event-type-badge"><?= htmlspecialchars($featured_event['event_type']) ?></span>
+                        <?php endif; ?>
+                    </div>
                     <span class="event-date">
                         <i class="bx bx-calendar"></i>
-                        <?php
-                        if ($events_result && $events_result->num_rows > 0) {
-                            $events_result->data_seek(0);
-                            $fe = $events_result->fetch_assoc();
-                            echo date('M j, Y', strtotime($fe['start_date']));
-                            $events_result->data_seek(0);
-                        } else {
-                            echo 'Coming Soon';
-                        }
-                        ?>
+                        <?= date('l, M j, Y', strtotime($featured_event['start_date'])) ?>
+                        <?php if ($featured_event['start_time']): ?>
+                            &nbsp;·&nbsp; <?= date('g:i A', strtotime($featured_event['start_time'])) ?>
+                        <?php endif; ?>
                     </span>
-                    <?php if (isset($fe)): ?>
-                    <h3><?= htmlspecialchars($fe['title']) ?></h3>
-                    <p><?= htmlspecialchars(substr($fe['description'] ?? 'An exciting upcoming event.', 0, 120)) ?></p>
-                    <?php else: ?>
-                    <h3>Revival Conference 2026</h3>
-                    <p>Three days of powerful worship, prophetic ministry, and spiritual renewal. Come ready for a breakthrough.</p>
+                    <h3><?= htmlspecialchars($featured_event['title']) ?></h3>
+                    <?php if ($featured_event['description']): ?>
+                    <p><?= htmlspecialchars(substr($featured_event['description'], 0, 130)) ?>...</p>
+                    <?php endif; ?>
+                    <?php if ($featured_event['venue_name']): ?>
+                    <div class="event-venue">
+                        <i class="bx bx-map-pin"></i>
+                        <?= htmlspecialchars($featured_event['venue_name']) ?>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
 
+            <!-- Event List -->
             <div class="event-list">
-                <?php
-                if ($events_result && $events_result->num_rows > 0) {
-                    $events_result->data_seek(0);
-                    $count = 0;
-                    while ($ev = $events_result->fetch_assoc()) {
-                        if ($count >= 3) break;
-                        $style = $count % 2 === 0 ? 'primary' : 'light';
-                        echo '<div class="event-card ' . $style . ' reveal' . ($count > 0 ? ' reveal-delay-' . $count : '') . '">';
-                        echo '<span class="event-date"><i class="bx bx-calendar"></i> ' . date('M j, Y', strtotime($ev['start_date'])) . '</span>';
-                        echo '<h4>' . htmlspecialchars($ev['title']) . '</h4>';
-                        if ($ev['description']) {
-                            echo '<p>' . htmlspecialchars(substr($ev['description'], 0, 100)) . '…</p>';
-                        }
-                        echo '</div>';
-                        $count++;
+                <?php foreach (array_slice($events_list, 0, 3) as $i => $ev):
+                    $style = $i % 2 === 0 ? 'primary' : 'light';
+                    $delay = $i > 0 ? ' reveal-delay-' . $i : '';
+                ?>
+                <div class="event-card <?= $style ?> reveal<?= $delay ?>">
+                    <?php
+                    $card_img = '';
+                    if (!empty($ev['image'])) {
+                        $card_img = file_exists(__DIR__ . '/assets/events/' . $ev['image'])
+                            ? 'assets/events/' . htmlspecialchars($ev['image'])
+                            : htmlspecialchars($ev['image']);
                     }
-                } else { ?>
-                <div class="event-card primary reveal">
-                    <span class="event-date"><i class="bx bx-calendar"></i> July 6, 2026</span>
-                    <h4>Youth Outreach Program</h4>
-                    <p>Community service and evangelism initiative reaching local neighborhoods with love and hope.</p>
+                    ?>
+                    <?php if ($card_img): ?>
+                    <div class="event-card-thumb">
+                        <img src="<?= $card_img ?>" alt="<?= htmlspecialchars($ev['title']) ?>" loading="lazy">
+                    </div>
+                    <?php endif; ?>
+                    <div class="event-card-body">
+                        <span class="event-date">
+                            <i class="bx bx-calendar"></i>
+                            <?= date('M j, Y', strtotime($ev['start_date'])) ?>
+                            <?php if ($ev['start_time']): ?>
+                                · <?= date('g:i A', strtotime($ev['start_time'])) ?>
+                            <?php endif; ?>
+                        </span>
+                        <h4><?= htmlspecialchars($ev['title']) ?></h4>
+                        <?php if ($ev['description']): ?>
+                        <p><?= htmlspecialchars(substr($ev['description'], 0, 90)) ?>…</p>
+                        <?php endif; ?>
+                        <?php if ($ev['venue_name']): ?>
+                        <span class="event-card-venue">
+                            <i class="bx bx-map-pin"></i> <?= htmlspecialchars($ev['venue_name']) ?>
+                        </span>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <div class="event-card light reveal reveal-delay-1">
-                    <span class="event-date"><i class="bx bx-calendar"></i> July 20, 2026</span>
-                    <h4>Family Fun Day</h4>
-                    <p>A day of games, food, and fellowship for the whole family to enjoy together in God's presence.</p>
-                </div>
-                <div class="event-card primary reveal reveal-delay-2">
-                    <span class="event-date"><i class="bx bx-calendar"></i> August 3, 2026</span>
-                    <h4>Achievers Leadership Summit</h4>
-                    <p>Equipping believers with tools to lead boldly in every sphere of life and influence.</p>
-                </div>
-                <?php } ?>
+                <?php endforeach; ?>
             </div>
 
         </div>
+        <?php endif; ?>
 
         <div style="text-align:center;margin-top:3rem;" class="reveal">
             <a href="events.php" class="btn-navy">
@@ -434,6 +487,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
         </span>
         <h2 class="section-title" id="testimonials-heading">What Our Members Say</h2>
 
+        <?php if (!empty($testimonials_data)): ?>
         <div class="rating-badge">
             ⭐ 5.0 <span>Community Rating</span>
         </div>
@@ -441,15 +495,17 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
         <div class="testimonial-card" id="testimonialCard">
             <div class="quote-icon">"</div>
             <p class="testimonial-text" id="testimonialText">
-                CAC Achievers House has been a total blessing to my family. The love,
-                support, and spiritual guidance we receive here have transformed our lives.
-                This is truly a place where God's presence dwells and destinies are shaped.
+                <?= htmlspecialchars($testimonials_data[0]['quote']) ?>
             </p>
             <div class="testimonial-author" id="testimonialAuthor">
-                <img id="testimonialImg" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sister Grace Adeyemi">
+                <?php
+                $t0 = $testimonials_data[0];
+                $t0_img = $t0['photo_url'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($t0['name']) . '&background=0a1f44&color=fff&size=150';
+                ?>
+                <img id="testimonialImg" src="<?= htmlspecialchars($t0_img) ?>" alt="<?= htmlspecialchars($t0['name']) ?>">
                 <div>
-                    <h4 id="testimonialName">Sister Grace Adeyemi</h4>
-                    <span id="testimonialMeta">Member since 2018</span>
+                    <h4 id="testimonialName"><?= htmlspecialchars($t0['name']) ?></h4>
+                    <span id="testimonialMeta"><?= htmlspecialchars($t0['role'] ?? '') ?></span>
                 </div>
             </div>
             <div class="testimonial-nav" role="group" aria-label="Testimonial navigation">
@@ -457,6 +513,20 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                 <button class="nav-btn active" id="nextTestimonial" aria-label="Next testimonial">→</button>
             </div>
         </div>
+
+        <?php else: ?>
+        <!-- ── EMPTY STATE ── -->
+        <div class="testimonials-empty reveal">
+            <div class="testimonials-empty-icon">
+                <i class="bx bx-message-square-dots"></i>
+            </div>
+            <h3>Testimonials Coming Soon</h3>
+            <p>We're gathering stories from our incredible community. Share your testimony with us and inspire others.</p>
+            <a href="contact.php" class="btn-primary" style="margin-top:1.5rem;display:inline-flex;align-items:center;gap:0.5rem;">
+                <i class="bx bx-edit"></i> Share Your Story
+            </a>
+        </div>
+        <?php endif; ?>
 
     </div>
 </section>
@@ -533,25 +603,17 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 /* ── TESTIMONIAL SLIDER ── */
+<?php if (!empty($testimonials_data)): ?>
 const testimonials = <?php
-    if (!empty($testimonials_data)) {
-        $js_testimonials = array_map(function($t) {
-            return [
-                'text' => $t['quote'],
-                'name' => $t['name'],
-                'meta' => $t['role'],
-                'img'  => $t['photo_url'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($t['name']) . '&background=0a1f44&color=fff&size=150'
-            ];
-        }, $testimonials_data);
-        echo json_encode($js_testimonials, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT);
-    } else {
-        // Fallback hardcoded testimonials
-        echo json_encode([
-            ['text' => "CAC Achievers House has been a total blessing to my family. The love, support, and spiritual guidance we receive here have transformed our lives.", 'name' => 'Sister Grace Adeyemi', 'meta' => 'Member since 2018', 'img' => 'https://randomuser.me/api/portraits/women/44.jpg'],
-            ['text' => "I came broken, but this church welcomed me with open arms. The teachings here are life-changing. My career, family, and faith are all better because of CAC Achievers House.", 'name' => 'Deacon Emmanuel Okafor', 'meta' => 'Member since 2020', 'img' => 'https://randomuser.me/api/portraits/men/32.jpg'],
-            ['text' => "The youth ministry completely changed the direction of my life. I found my purpose here and met friends who push me to be better in Christ every single day.", 'name' => 'Cynthia Babatunde', 'meta' => 'Youth member since 2021', 'img' => 'https://randomuser.me/api/portraits/women/68.jpg']
-        ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT);
-    }
+    $js_testimonials = array_map(function($t) {
+        return [
+            'text' => $t['quote'],
+            'name' => $t['name'],
+            'meta' => $t['role'] ?? '',
+            'img'  => $t['photo_url'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($t['name']) . '&background=0a1f44&color=fff&size=150'
+        ];
+    }, $testimonials_data);
+    echo json_encode($js_testimonials, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT);
 ?>;
 
 let currentIndex = 0;
@@ -573,27 +635,30 @@ function switchTestimonial(i) {
     }, 250);
 }
 
-document.getElementById('nextTestimonial').addEventListener('click', () => {
-    currentIndex = (currentIndex + 1) % testimonials.length;
-    switchTestimonial(currentIndex);
-});
-document.getElementById('prevTestimonial').addEventListener('click', () => {
-    currentIndex = (currentIndex - 1 + testimonials.length) % testimonials.length;
-    switchTestimonial(currentIndex);
-});
+if (testimonials.length > 1) {
+    document.getElementById('nextTestimonial').addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % testimonials.length;
+        switchTestimonial(currentIndex);
+    });
+    document.getElementById('prevTestimonial').addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + testimonials.length) % testimonials.length;
+        switchTestimonial(currentIndex);
+    });
 
-let autoRotate = setInterval(() => {
-    currentIndex = (currentIndex + 1) % testimonials.length;
-    switchTestimonial(currentIndex);
-}, 6000);
-
-card.addEventListener('mouseenter', () => clearInterval(autoRotate));
-card.addEventListener('mouseleave', () => {
-    autoRotate = setInterval(() => {
+    let autoRotate = setInterval(() => {
         currentIndex = (currentIndex + 1) % testimonials.length;
         switchTestimonial(currentIndex);
     }, 6000);
-});
+
+    card.addEventListener('mouseenter', () => clearInterval(autoRotate));
+    card.addEventListener('mouseleave', () => {
+        autoRotate = setInterval(() => {
+            currentIndex = (currentIndex + 1) % testimonials.length;
+            switchTestimonial(currentIndex);
+        }, 6000);
+    });
+}
+<?php endif; ?>
 
 /* ── CARD MICRO-TILT ── */
 document.querySelectorAll('.service-card, .ministry-card').forEach(card => {
