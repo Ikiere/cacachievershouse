@@ -445,7 +445,7 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                     <h1>Events</h1>
                     <p>Create and manage church events</p>
                 </div>
-                <button class="btn btn-primary" id="openEventModal">
+                <button class="btn btn-primary" onclick="openEventForm()">
                     <i class='bx bx-plus'></i> Create Event
                 </button>
             </div>
@@ -459,27 +459,42 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                             case 'planning': $badgeClass = 'planning'; break;
                             default:         $badgeClass = 'past';     break;
                         }
+                        $imgSrc = !empty($ev['image']) ? '../' . htmlspecialchars($ev['image']) : '';
                 ?>
-                <div class="event-card">
-                    <div class="event-card-header">
-                        <h4 style="font-size:14px;font-weight:700;"><?= htmlspecialchars($ev['title']) ?></h4>
-                        <span class="event-badge <?= $badgeClass ?>"><?= ucfirst($ev['status']) ?></span>
-                    </div>
-                    <div class="event-meta">
-                        <span><i class='bx bx-calendar'></i> <?= date('M j, Y', strtotime($ev['start_date'])) ?></span>
-                        <?php if ($ev['start_time']): ?>
-                        <span><i class='bx bx-time'></i> <?= date('g:i A', strtotime($ev['start_time'])) ?></span>
+                <div class="event-card premium-card">
+                    <div class="event-card-thumb">
+                        <?php if ($imgSrc): ?>
+                            <img src="<?= $imgSrc ?>" alt="<?= htmlspecialchars($ev['title']) ?>">
+                        <?php else: ?>
+                            <div class="event-placeholder"><i class='bx bx-star'></i></div>
                         <?php endif; ?>
+                        <span class="event-status-badge <?= $badgeClass ?>"><?= ucfirst($ev['status']) ?></span>
+                    </div>
+                    <div class="event-card-body">
+                        <div class="event-type-badge"><?= htmlspecialchars($ev['event_type']) ?></div>
+                        <h4><?= htmlspecialchars($ev['title']) ?></h4>
+                        
+                        <div class="event-meta">
+                            <span><i class='bx bx-calendar'></i> <?= date('M j, Y', strtotime($ev['start_date'])) ?></span>
+                            <?php if ($ev['start_time'] && $ev['start_time'] != '00:00:00'): ?>
+                            <span><i class='bx bx-time'></i> <?= date('g:i A', strtotime($ev['start_time'])) ?></span>
+                            <?php endif; ?>
+                        </div>
                         <?php if ($ev['venue_name']): ?>
-                        <span><i class='bx bx-map'></i> <?= htmlspecialchars($ev['venue_name']) ?></span>
+                        <div class="event-venue"><i class='bx bx-map'></i> <?= htmlspecialchars($ev['venue_name']) ?></div>
                         <?php endif; ?>
-                    </div>
-                    <?php if ($ev['description']): ?>
-                    <p style="font-size:12.5px;color:var(--text-muted);line-height:1.4;"><?= htmlspecialchars(substr($ev['description'], 0, 90)) ?>…</p>
-                    <?php endif; ?>
-                    <div class="action-btns mt-4">
-                        <button class="action-btn edit" title="Edit event"><i class='bx bx-edit'></i></button>
-                        <button class="action-btn delete" title="Delete event"><i class='bx bx-trash'></i></button>
+
+                        <p class="event-desc"><?= htmlspecialchars(mb_substr($ev['description'], 0, 80)) ?><?= strlen($ev['description']) > 80 ? '...' : '' ?></p>
+
+                        <div class="action-btns mt-4">
+                            <!-- Store the event object as JSON in a data attribute to pass to editEvent -->
+                            <button class="action-btn edit" title="Edit event" onclick='editEvent(<?= json_encode($ev, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>
+                                <i class='bx bx-edit'></i>
+                            </button>
+                            <button class="action-btn delete" title="Delete event" onclick="deleteEvent(<?= $ev['id'] ?>)">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <?php endwhile; else: ?>
@@ -1293,26 +1308,7 @@ document.getElementById('memberSearch')?.addEventListener('input', function () {
     });
 });
 
-// ── Event Modal ─────────────────────────────────────────────
-document.getElementById('openEventModal').addEventListener('click', () => {
-    document.getElementById('eventModal').classList.add('open');
-});
-
-document.getElementById('eventForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const data = new FormData(this);
-    fetch('save_event.php', { method: 'POST', body: data })
-    .then(r => r.json())
-    .then(res => {
-        document.getElementById('eventModal').classList.remove('open');
-        Swal.fire({
-            icon: res.success ? 'success' : 'error',
-            title: res.success ? 'Event Created!' : 'Error',
-            text: res.message || '',
-            confirmButtonColor: '#f97316'
-        }).then(() => { if (res.success) location.reload(); });
-    });
-});
+// Removed old Event Modal logic
 
 // ── View Message ────────────────────────────────────────────
 function viewMessage(name, email, subject, message) {
@@ -1360,6 +1356,88 @@ if (hash && document.getElementById('panel-' + hash)) {
 <!-- ══════════════════════════════════════════════════
      SLIDING PANELS
      ══════════════════════════════════════════════════ -->
+
+<!-- SLIDING PANELS -->
+<!-- EVENT FORM PANEL -->
+<div class="slide-panel" id="slideEvent">
+    <div class="slide-panel-header">
+        <h2 id="ev_panel_title">Create Event</h2>
+        <button class="close-panel" onclick="closeEventForm()"><i class='bx bx-x'></i></button>
+    </div>
+    <div class="slide-panel-body">
+        <form id="eventForm" onsubmit="saveEvent(event)" enctype="multipart/form-data">
+            <input type="hidden" name="id" id="ev_id">
+            
+            <div class="form-group">
+                <label>Event Title *</label>
+                <input type="text" name="title" id="ev_title" class="form-control" required placeholder="e.g. Sunday Celebration">
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" name="start_date" id="ev_start_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Start Time</label>
+                    <input type="time" name="start_time" id="ev_start_time" class="form-control">
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" name="end_date" id="ev_end_date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>End Time</label>
+                    <input type="time" name="end_time" id="ev_end_time" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Venue / Location</label>
+                <input type="text" name="venue_name" id="ev_venue" class="form-control" placeholder="e.g. Main Auditorium">
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div class="form-group">
+                    <label>Event Type</label>
+                    <select name="event_type" id="ev_type" class="form-control">
+                        <option value="Service">Service</option>
+                        <option value="Conference">Conference</option>
+                        <option value="Seminar">Seminar</option>
+                        <option value="Youth">Youth</option>
+                        <option value="Outreach">Outreach</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" id="ev_status" class="form-control">
+                        <option value="upcoming">Upcoming</option>
+                        <option value="planning">Planning</option>
+                        <option value="past">Past</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" id="ev_desc" class="form-control" rows="4" placeholder="Event details..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Event Thumbnail Image (JPG/PNG/WEBP)</label>
+                <input type="file" name="image" id="ev_image" class="form-control" accept="image/*">
+                <img id="ev_img_preview" src="" style="width:100%;height:180px;object-fit:cover;border-radius:12px;margin-top:10px;display:none;border:1px solid rgba(0,0,0,0.1);">
+            </div>
+
+            <button type="submit" class="btn-primary" id="saveEventBtn" style="width:100%;padding:1rem;">Save Event</button>
+        </form>
+    </div>
+</div>
 
 <!-- SERMON UPLOAD FORM -->
 <div class="slide-panel" id="slideSermon">
@@ -1554,6 +1632,89 @@ function toggleTestimonial(id, newStatus) {
     .then(res => {
         if (res.success) location.reload();
         else Swal.fire('Error', res.message, 'error');
+    });
+}
+// ── Event sliding panel logic ─────────────────────────────
+const slideEvent = document.getElementById('slideEvent');
+
+function openEventForm() {
+    document.getElementById('eventForm').reset();
+    document.getElementById('ev_id').value = '';
+    document.getElementById('ev_panel_title').textContent = 'Create Event';
+    document.getElementById('ev_img_preview').style.display = 'none';
+    document.getElementById('ev_img_preview').src = '';
+    slideEvent.classList.add('active');
+}
+
+function closeEventForm() { slideEvent.classList.remove('active'); }
+
+function editEvent(ev) {
+    document.getElementById('eventForm').reset();
+    document.getElementById('ev_panel_title').textContent = 'Edit Event';
+    document.getElementById('ev_id').value = ev.id || '';
+    document.getElementById('ev_title').value = ev.title || '';
+    document.getElementById('ev_start_date').value = ev.start_date || '';
+    document.getElementById('ev_start_time').value = ev.start_time || '';
+    document.getElementById('ev_end_date').value = ev.end_date || '';
+    document.getElementById('ev_end_time').value = ev.end_time || '';
+    document.getElementById('ev_venue').value = ev.venue_name || '';
+    document.getElementById('ev_type').value = ev.event_type || 'Service';
+    document.getElementById('ev_status').value = ev.status || 'upcoming';
+    document.getElementById('ev_desc').value = ev.description || '';
+
+    const imgPreview = document.getElementById('ev_img_preview');
+    if (ev.image) {
+        imgPreview.style.display = 'block';
+        imgPreview.src = '../' + ev.image;
+    } else {
+        imgPreview.style.display = 'none';
+        imgPreview.src = '';
+    }
+    
+    slideEvent.classList.add('active');
+}
+
+function saveEvent(e) {
+    e.preventDefault();
+    const data = new FormData(document.getElementById('eventForm'));
+    const btn = document.getElementById('saveEventBtn');
+    btn.disabled = true; btn.innerHTML = 'Saving…';
+
+    fetch('save_event.php', { method: 'POST', body: data })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            Swal.fire('Saved!', 'Event saved successfully.', 'success').then(() => location.reload());
+        } else {
+            Swal.fire('Error', res.message, 'error');
+            btn.disabled = false; btn.innerHTML = 'Save Event';
+        }
+    }).catch(() => {
+        Swal.fire('Error', 'Network error', 'error');
+        btn.disabled = false; btn.innerHTML = 'Save Event';
+    });
+}
+
+function deleteEvent(id) {
+    Swal.fire({
+        title: 'Delete Event?',
+        text: "This will remove the event and any uploaded image. This cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'Yes, delete it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const fd = new FormData();
+            fd.append('action', 'delete');
+            fd.append('id', id);
+            fetch('save_event.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) location.reload();
+                else Swal.fire('Error', res.message, 'error');
+            });
+        }
     });
 }
 </script>
