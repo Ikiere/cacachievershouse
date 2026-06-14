@@ -437,17 +437,51 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
         </div>
 
         <!-- ══════════════════════════════════════════════════
-             PANEL: EVENTS
+             PANEL: EVENTS (Premium Redesign)
              ══════════════════════════════════════════════════ -->
         <div class="admin-panel" id="panel-events">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>Events</h1>
-                    <p>Create and manage church events</p>
+
+            <!-- Hero Header -->
+            <div class="premium-panel-hero">
+                <div class="premium-hero-left">
+                    <div class="premium-hero-icon"><i class='bx bx-calendar-event'></i></div>
+                    <div>
+                        <h1>Events</h1>
+                        <p>Create, schedule and manage church events with ease</p>
+                    </div>
                 </div>
-                <button class="btn btn-primary" onclick="openEventForm()">
-                    <i class='bx bx-plus'></i> Create Event
+                <button class="premium-btn-create" onclick="openEventForm()">
+                    <i class='bx bx-plus'></i> New Event
                 </button>
+            </div>
+
+            <!-- Stats Strip -->
+            <?php
+                $ev_upcoming = db_count($conn, "SELECT COUNT(*) as n FROM events WHERE status='upcoming'");
+                $ev_planning = db_count($conn, "SELECT COUNT(*) as n FROM events WHERE status='planning'");
+                $ev_past     = db_count($conn, "SELECT COUNT(*) as n FROM events WHERE status='past'");
+                $ev_total    = db_count($conn, "SELECT COUNT(*) as n FROM events");
+            ?>
+            <div class="premium-stats-strip">
+                <div class="premium-stat-chip active">
+                    <span class="premium-stat-num"><?= $ev_total ?></span>
+                    <span class="premium-stat-label">Total</span>
+                </div>
+                <div class="premium-stat-chip">
+                    <span class="premium-stat-dot" style="background:#10b981;"></span>
+                    <span class="premium-stat-num"><?= $ev_upcoming ?></span>
+                    <span class="premium-stat-label">Upcoming</span>
+                </div>
+                <div class="premium-stat-chip">
+                    <span class="premium-stat-dot" style="background:#3b82f6;"></span>
+                    <span class="premium-stat-num"><?= $ev_planning ?></span>
+                    <span class="premium-stat-label">Planning</span>
+                </div>
+                <div class="premium-stat-chip">
+                    <span class="premium-stat-dot" style="background:#94a3b8;"></span>
+                    <span class="premium-stat-num"><?= $ev_past ?></span>
+                    <span class="premium-stat-label">Past</span>
+                </div>
             </div>
 
             <div class="events-grid" id="eventsGrid">
@@ -457,6 +491,7 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                         switch ($ev['status']) {
                             case 'upcoming': $badgeClass = 'upcoming'; break;
                             case 'planning': $badgeClass = 'planning'; break;
+                            case 'cancelled': $badgeClass = 'cancelled'; break;
                             default:         $badgeClass = 'past';     break;
                         }
                         $imgSrc = !empty($ev['image']) ? '../' . htmlspecialchars($ev['image']) : '';
@@ -464,43 +499,50 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                 <div class="event-card premium-card">
                     <div class="event-card-thumb">
                         <?php if ($imgSrc): ?>
-                            <img src="<?= $imgSrc ?>" alt="<?= htmlspecialchars($ev['title']) ?>">
+                            <img src="<?= $imgSrc ?>" alt="<?= htmlspecialchars($ev['title']) ?>" loading="lazy">
                         <?php else: ?>
-                            <div class="event-placeholder"><i class='bx bx-star'></i></div>
+                            <div class="event-placeholder"><i class='bx bx-calendar-star'></i></div>
                         <?php endif; ?>
                         <span class="event-status-badge <?= $badgeClass ?>"><?= ucfirst($ev['status']) ?></span>
                     </div>
                     <div class="event-card-body">
+                        <?php if (!empty($ev['event_type'])): ?>
                         <div class="event-type-badge"><?= htmlspecialchars($ev['event_type']) ?></div>
+                        <?php endif; ?>
                         <h4><?= htmlspecialchars($ev['title']) ?></h4>
                         
-                        <div class="event-meta">
-                            <span><i class='bx bx-calendar'></i> <?= date('M j, Y', strtotime($ev['start_date'])) ?></span>
+                        <div class="event-meta-row">
+                            <span class="event-meta-item"><i class='bx bx-calendar'></i><?= date('M j, Y', strtotime($ev['start_date'])) ?></span>
                             <?php if ($ev['start_time'] && $ev['start_time'] != '00:00:00'): ?>
-                            <span><i class='bx bx-time'></i> <?= date('g:i A', strtotime($ev['start_time'])) ?></span>
+                            <span class="event-meta-item"><i class='bx bx-time-five'></i><?= date('g:i A', strtotime($ev['start_time'])) ?></span>
                             <?php endif; ?>
                         </div>
                         <?php if ($ev['venue_name']): ?>
-                        <div class="event-venue"><i class='bx bx-map'></i> <?= htmlspecialchars($ev['venue_name']) ?></div>
+                        <div class="event-meta-item venue"><i class='bx bx-map'></i><?= htmlspecialchars($ev['venue_name']) ?></div>
                         <?php endif; ?>
 
-                        <p class="event-desc"><?= htmlspecialchars(mb_substr($ev['description'], 0, 80)) ?><?= strlen($ev['description']) > 80 ? '...' : '' ?></p>
+                        <?php if (!empty($ev['description'])): ?>
+                        <p class="event-desc"><?= htmlspecialchars(mb_substr($ev['description'], 0, 90)) ?><?= strlen($ev['description']) > 90 ? '...' : '' ?></p>
+                        <?php endif; ?>
 
-                        <div class="action-btns mt-4">
-                            <!-- Store the event object as JSON in a data attribute to pass to editEvent -->
-                            <button class="action-btn edit" title="Edit event" onclick='editEvent(<?= json_encode($ev, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>
-                                <i class='bx bx-edit'></i>
+                        <div class="event-card-footer">
+                            <button class="premium-action-btn edit" title="Edit" onclick='editEvent(<?= json_encode($ev, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>
+                                <i class='bx bx-pencil'></i> Edit
                             </button>
-                            <button class="action-btn delete" title="Delete event" onclick="deleteEvent(<?= $ev['id'] ?>)">
+                            <button class="premium-action-btn danger" title="Delete" onclick="deleteEvent(<?= $ev['id'] ?>)">
                                 <i class='bx bx-trash'></i>
                             </button>
                         </div>
                     </div>
                 </div>
                 <?php endwhile; else: ?>
-                <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted);">
-                    <i class='bx bx-calendar-x' style="font-size:48px;display:block;margin-bottom:12px;"></i>
-                    No events yet. Click "Create Event" to add one.
+                <div class="premium-empty-state" style="grid-column:1/-1;">
+                    <div class="premium-empty-icon"><i class='bx bx-calendar-plus'></i></div>
+                    <h3>No Events Yet</h3>
+                    <p>Start creating memorable experiences for your congregation.</p>
+                    <button class="premium-btn-create sm" onclick="openEventForm()">
+                        <i class='bx bx-plus'></i> Create Your First Event
+                    </button>
                 </div>
                 <?php endif; ?>
             </div>
@@ -589,81 +631,100 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
         </div>
 
         <!-- ══════════════════════════════════════════════════
-             PANEL: SERMONS
+             PANEL: SERMONS (Premium Redesign)
              ══════════════════════════════════════════════════ -->
         <div class="admin-panel" id="panel-sermons">
-            <div class="page-header">
-                <div class="page-header-left">
-                    <h1>Sermons</h1>
-                    <p>Upload and manage audio/video sermons for your congregation</p>
+
+            <!-- Hero Header -->
+            <div class="premium-panel-hero">
+                <div class="premium-hero-left">
+                    <div class="premium-hero-icon sermon"><i class='bx bx-headphone'></i></div>
+                    <div>
+                        <h1>Sermons</h1>
+                        <p>Upload and manage audio/video sermons for your congregation</p>
+                    </div>
                 </div>
-                <div class="page-header-right">
-                    <button class="btn-upload-sermon" onclick="openSermonForm()">
-                        <i class='bx bx-cloud-upload'></i>
-                        <span>Upload Sermon</span>
-                    </button>
+                <button class="premium-btn-create" onclick="openSermonForm()">
+                    <i class='bx bx-cloud-upload'></i> Upload Sermon
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <?php
+                $sm_total = db_count($conn, "SELECT COUNT(*) as n FROM sermons");
+                $sm_audio = db_count($conn, "SELECT COUNT(*) as n FROM sermons WHERE audio_file IS NOT NULL AND audio_file != ''");
+                $sm_video = db_count($conn, "SELECT COUNT(*) as n FROM sermons WHERE video_url IS NOT NULL AND video_url != ''");
+            ?>
+            <div class="premium-stats-strip">
+                <div class="premium-stat-chip active">
+                    <span class="premium-stat-num"><?= $sm_total ?></span>
+                    <span class="premium-stat-label">Total Sermons</span>
+                </div>
+                <div class="premium-stat-chip">
+                    <span class="premium-stat-dot" style="background:#f97316;"></span>
+                    <span class="premium-stat-num"><?= $sm_audio ?></span>
+                    <span class="premium-stat-label">With Audio</span>
+                </div>
+                <div class="premium-stat-chip">
+                    <span class="premium-stat-dot" style="background:#8b5cf6;"></span>
+                    <span class="premium-stat-num"><?= $sm_video ?></span>
+                    <span class="premium-stat-label">With Video</span>
                 </div>
             </div>
 
-            <div class="admin-card no-pad">
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Sermon Details</th>
-                                <th>Speaker</th>
-                                <th>Date</th>
-                                <th style="text-align:right;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if ($sermons_result && $sermons_result->num_rows > 0):
-                                $sermons_result->data_seek(0);
-                                while ($s = $sermons_result->fetch_assoc()):
-                            ?>
-                            <tr>
-                                <td>
-                                    <div class="member-info">
-                                        <div class="member-avatar" style="background:var(--primary-light);color:var(--primary);border-radius:8px;">
-                                            <i class='bx bx-headphone'></i>
-                                        </div>
-                                        <div>
-                                            <strong><?= htmlspecialchars($s['title']) ?></strong>
-                                            <span style="display:block;font-size:0.8rem;color:var(--text-muted);margin-top:2px;">
-                                                <?= htmlspecialchars($s['series'] ?: 'Single Message') ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><?= htmlspecialchars($s['speaker']) ?></td>
-                                <td><?= date('M j, Y', strtotime($s['sermon_date'])) ?></td>
-                                <td style="text-align:right;">
-                                    <div class="action-btns">
-                                        <?php if ($s['audio_file']): ?>
-                                        <a href="../<?= htmlspecialchars($s['audio_file']) ?>" target="_blank" class="action-btn view" title="Play audio">
-                                            <i class='bx bx-play'></i>
-                                        </a>
-                                        <?php endif; ?>
-                                        <button class="action-btn edit" onclick='editSermon(<?= json_encode($s, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?>)' title="Edit">
-                                            <i class='bx bx-edit-alt'></i>
-                                        </button>
-                                        <button class="action-btn delete" onclick="deleteSermon(<?= $s['id'] ?>)" title="Delete">
-                                            <i class='bx bx-trash'></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endwhile; else: ?>
-                            <tr>
-                                <td colspan="4" style="text-align:center;padding:48px;color:var(--text-muted);">
-                                    <i class='bx bx-microphone-off' style="font-size:48px;display:block;margin-bottom:12px;"></i>
-                                    No sermons uploaded yet. Click "Upload Sermon" to add one.
-                                </td>
-                            </tr>
+            <!-- Sermons Grid -->
+            <div class="sermons-admin-grid">
+                <?php if ($sermons_result && $sermons_result->num_rows > 0):
+                    $sermons_result->data_seek(0);
+                    while ($s = $sermons_result->fetch_assoc()):
+                        $hasAudio = !empty($s['audio_file']);
+                        $hasVideo = !empty($s['video_url']);
+                ?>
+                <div class="sermon-card premium-card">
+                    <div class="sermon-card-visual">
+                        <div class="sermon-icon-circle">
+                            <i class='bx <?= $hasVideo ? "bx-video" : ($hasAudio ? "bx-headphone" : "bx-book-open") ?>'></i>
+                        </div>
+                        <div class="sermon-media-badges">
+                            <?php if ($hasAudio): ?><span class="media-chip audio"><i class='bx bx-music'></i> Audio</span><?php endif; ?>
+                            <?php if ($hasVideo): ?><span class="media-chip video"><i class='bx bx-play-circle'></i> Video</span><?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="sermon-card-body">
+                        <div class="sermon-series-tag"><?= htmlspecialchars($s['series'] ?: 'Single Message') ?></div>
+                        <h4><?= htmlspecialchars($s['title']) ?></h4>
+                        <div class="sermon-meta-row">
+                            <span><i class='bx bx-user'></i><?= htmlspecialchars($s['speaker']) ?></span>
+                            <span><i class='bx bx-calendar'></i><?= date('M j, Y', strtotime($s['sermon_date'])) ?></span>
+                        </div>
+                        <?php if (!empty($s['description'])): ?>
+                        <p class="sermon-desc"><?= htmlspecialchars(mb_substr($s['description'], 0, 80)) ?><?= strlen($s['description']) > 80 ? '...' : '' ?></p>
+                        <?php endif; ?>
+                        <div class="event-card-footer">
+                            <?php if ($hasAudio): ?>
+                            <a href="../<?= htmlspecialchars($s['audio_file']) ?>" target="_blank" class="premium-action-btn play" title="Play">
+                                <i class='bx bx-play'></i>
+                            </a>
                             <?php endif; ?>
-                        </tbody>
-                    </table>
+                            <button class="premium-action-btn edit" onclick='editSermon(<?= json_encode($s, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP) ?>)' title="Edit">
+                                <i class='bx bx-pencil'></i> Edit
+                            </button>
+                            <button class="premium-action-btn danger" onclick="deleteSermon(<?= $s['id'] ?>)" title="Delete">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                <?php endwhile; else: ?>
+                <div class="premium-empty-state" style="grid-column:1/-1;">
+                    <div class="premium-empty-icon"><i class='bx bx-microphone'></i></div>
+                    <h3>No Sermons Yet</h3>
+                    <p>Share the Word with your congregation. Upload your first sermon today.</p>
+                    <button class="premium-btn-create sm" onclick="openSermonForm()">
+                        <i class='bx bx-cloud-upload'></i> Upload Your First Sermon
+                    </button>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -1061,6 +1122,10 @@ function switchPanel(name, linkEl) {
     // Update breadcrumb
     document.getElementById('breadcrumbPage').textContent = panelTitles[name] || name;
 
+    // Save state to persist on reload
+    localStorage.setItem('activeAdminPanel', name);
+    window.location.hash = name;
+
     // Close mobile sidebar
     closeMobileSidebar();
 }
@@ -1347,10 +1412,13 @@ function deleteGalleryItem(id) {
     });
 }
 
-// ── URL hash navigation ──────────────────────────────────────
+// ── State restoration on load ──────────────────────────────────
 const hash = window.location.hash.replace('#', '');
-if (hash && document.getElementById('panel-' + hash)) {
-    switchPanel(hash, document.querySelector(`.nav-item[data-panel="${hash}"]`));
+const savedPanel = localStorage.getItem('activeAdminPanel');
+const targetPanel = hash || savedPanel || 'overview';
+
+if (document.getElementById('panel-' + targetPanel)) {
+    switchPanel(targetPanel, document.querySelector(`.nav-item[data-panel="${targetPanel}"]`));
 }
 </script>
 <!-- ══════════════════════════════════════════════════
@@ -1358,145 +1426,195 @@ if (hash && document.getElementById('panel-' + hash)) {
      ══════════════════════════════════════════════════ -->
 
 <!-- SLIDING PANELS -->
-<!-- EVENT FORM PANEL -->
-<div class="slide-panel" id="slideEvent">
-    <div class="slide-panel-header">
-        <h2 id="ev_panel_title">Create Event</h2>
-        <button class="close-panel" onclick="closeEventForm()"><i class='bx bx-x'></i></button>
+<!-- EVENT FORM PANEL (Premium Redesign) -->
+<div class="slide-panel premium-slide" id="slideEvent">
+    <div class="slide-panel-header premium-slide-header">
+        <div class="slide-header-left">
+            <div class="slide-header-icon"><i class='bx bx-calendar-event'></i></div>
+            <div>
+                <h2 id="ev_panel_title">Create Event</h2>
+                <span class="slide-header-sub">Fill in the details below</span>
+            </div>
+        </div>
+        <button class="close-panel premium-close" onclick="closeEventForm()"><i class='bx bx-x'></i></button>
     </div>
-    <div class="slide-panel-body">
+    <div class="slide-panel-body premium-slide-body">
         <form id="eventForm" onsubmit="saveEvent(event)" enctype="multipart/form-data">
             <input type="hidden" name="id" id="ev_id">
-            
-            <div class="form-group">
-                <label>Event Title *</label>
-                <input type="text" name="title" id="ev_title" class="form-control" required placeholder="e.g. Sunday Celebration">
-            </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <!-- Section: Basic Info -->
+            <div class="form-section">
+                <div class="form-section-label"><i class='bx bx-info-circle'></i> Basic Information</div>
                 <div class="form-group">
-                    <label>Start Date *</label>
-                    <input type="date" name="start_date" id="ev_start_date" class="form-control" required>
+                    <label>Event Title <span class="required">*</span></label>
+                    <input type="text" name="title" id="ev_title" class="form-control premium-input" required placeholder="e.g. Sunday Celebration Service">
                 </div>
                 <div class="form-group">
-                    <label>Start Time</label>
-                    <input type="time" name="start_time" id="ev_start_time" class="form-control">
+                    <label>Description</label>
+                    <textarea name="description" id="ev_desc" class="form-control premium-input" rows="3" placeholder="Tell people what this event is about..."></textarea>
                 </div>
             </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-                <div class="form-group">
-                    <label>End Date</label>
-                    <input type="date" name="end_date" id="ev_end_date" class="form-control">
+            <!-- Section: Date & Time -->
+            <div class="form-section">
+                <div class="form-section-label"><i class='bx bx-time-five'></i> Date & Time</div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Start Date <span class="required">*</span></label>
+                        <input type="date" name="start_date" id="ev_start_date" class="form-control premium-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input type="time" name="start_time" id="ev_start_time" class="form-control premium-input">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>End Time</label>
-                    <input type="time" name="end_time" id="ev_end_time" class="form-control">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Venue / Location</label>
-                <input type="text" name="venue_name" id="ev_venue" class="form-control" placeholder="e.g. Main Auditorium">
-            </div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-                <div class="form-group">
-                    <label>Event Type</label>
-                    <select name="event_type" id="ev_type" class="form-control">
-                        <option value="Service">Service</option>
-                        <option value="Conference">Conference</option>
-                        <option value="Seminar">Seminar</option>
-                        <option value="Youth">Youth</option>
-                        <option value="Outreach">Outreach</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select name="status" id="ev_status" class="form-control">
-                        <option value="upcoming">Upcoming</option>
-                        <option value="planning">Planning</option>
-                        <option value="past">Past</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" name="end_date" id="ev_end_date" class="form-control premium-input">
+                    </div>
+                    <div class="form-group">
+                        <label>End Time</label>
+                        <input type="time" name="end_time" id="ev_end_time" class="form-control premium-input">
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" id="ev_desc" class="form-control" rows="4" placeholder="Event details..."></textarea>
+            <!-- Section: Location & Classification -->
+            <div class="form-section">
+                <div class="form-section-label"><i class='bx bx-map-pin'></i> Location & Type</div>
+                <div class="form-group">
+                    <label>Venue / Location</label>
+                    <input type="text" name="venue_name" id="ev_venue" class="form-control premium-input" placeholder="e.g. Main Auditorium, Fellowship Hall">
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Event Type</label>
+                        <select name="event_type" id="ev_type" class="form-control premium-input">
+                            <option value="Service">Service</option>
+                            <option value="Conference">Conference</option>
+                            <option value="Seminar">Seminar</option>
+                            <option value="Youth">Youth</option>
+                            <option value="Outreach">Outreach</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" id="ev_status" class="form-control premium-input">
+                            <option value="upcoming">Upcoming</option>
+                            <option value="planning">Planning</option>
+                            <option value="past">Past</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Event Thumbnail Image (JPG/PNG/WEBP)</label>
-                <input type="file" name="image" id="ev_image" class="form-control" accept="image/*">
-                <img id="ev_img_preview" src="" style="width:100%;height:180px;object-fit:cover;border-radius:12px;margin-top:10px;display:none;border:1px solid rgba(0,0,0,0.1);">
+            <!-- Section: Thumbnail -->
+            <div class="form-section">
+                <div class="form-section-label"><i class='bx bx-image-add'></i> Cover Image</div>
+                <div class="premium-upload-zone" id="evUploadZone" onclick="document.getElementById('ev_image').click()">
+                    <img id="ev_img_preview" src="" class="premium-upload-preview">
+                    <div class="premium-upload-prompt" id="evUploadPrompt">
+                        <i class='bx bx-cloud-upload'></i>
+                        <span>Click to upload or drag & drop</span>
+                        <small>JPG, PNG, WEBP • Max 5MB</small>
+                    </div>
+                    <input type="file" name="image" id="ev_image" accept="image/*" style="display:none;" onchange="previewEventImage(this)">
+                </div>
             </div>
 
-            <button type="submit" class="btn-primary" id="saveEventBtn" style="width:100%;padding:1rem;">Save Event</button>
+            <button type="submit" class="premium-submit-btn" id="saveEventBtn">
+                <i class='bx bx-check-circle'></i> Save Event
+            </button>
         </form>
     </div>
 </div>
 
-<!-- SERMON UPLOAD FORM -->
-<div class="slide-panel" id="slideSermon">
-    <div class="slide-panel-header">
-        <h2 id="sm_panel_title">Upload Sermon</h2>
-        <button class="close-panel" onclick="closeSermonForm()"><i class='bx bx-x'></i></button>
+<!-- SERMON UPLOAD FORM (Premium Redesign) -->
+<div class="slide-panel premium-slide" id="slideSermon">
+    <div class="slide-panel-header premium-slide-header">
+        <div class="slide-header-left">
+            <div class="slide-header-icon sermon"><i class='bx bx-headphone'></i></div>
+            <div>
+                <h2 id="sm_panel_title">Upload Sermon</h2>
+                <span class="slide-header-sub">Share the word with your congregation</span>
+            </div>
+        </div>
+        <button class="close-panel premium-close" onclick="closeSermonForm()"><i class='bx bx-x'></i></button>
     </div>
-    <div class="slide-panel-body">
+    <div class="slide-panel-body premium-slide-body">
         <form id="sermonForm" onsubmit="saveSermon(event)" enctype="multipart/form-data">
             <input type="hidden" name="sermon_id" id="sm_id">
             
-            <div class="form-group">
-                <label>Sermon Title *</label>
-                <input type="text" name="title" id="sm_title" class="form-control" required placeholder="e.g. Walking in Faith">
-            </div>
-            
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <!-- Section: Basic Info -->
+            <div class="form-section">
+                <div class="form-section-label"><i class='bx bx-info-circle'></i> Message Details</div>
                 <div class="form-group">
-                    <label>Speaker *</label>
-                    <input type="text" name="speaker" id="sm_speaker" class="form-control" required placeholder="e.g. Pastor John">
+                    <label>Sermon Title <span class="required">*</span></label>
+                    <input type="text" name="title" id="sm_title" class="form-control premium-input" required placeholder="e.g. Walking in Faith">
                 </div>
-                <div class="form-group">
-                    <label>Date *</label>
-                    <input type="date" name="sermon_date" id="sm_date" class="form-control" required value="<?= date('Y-m-d') ?>">
+                
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Speaker <span class="required">*</span></label>
+                        <input type="text" name="speaker" id="sm_speaker" class="form-control premium-input" required placeholder="e.g. Pastor John">
+                    </div>
+                    <div class="form-group">
+                        <label>Date <span class="required">*</span></label>
+                        <input type="date" name="sermon_date" id="sm_date" class="form-control premium-input" required value="<?= date('Y-m-d') ?>">
+                    </div>
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Series (Optional)</label>
-                <input type="text" name="series" id="sm_series" class="form-control" placeholder="e.g. The Book of Romans">
-            </div>
-            
-            <div class="form-group">
-                <label>Scripture Reference</label>
-                <input type="text" name="scripture" id="sm_scripture" class="form-control" placeholder="e.g. Romans 8:28">
-            </div>
+                
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Series (Optional)</label>
+                        <input type="text" name="series" id="sm_series" class="form-control premium-input" placeholder="e.g. Romans">
+                    </div>
+                    <div class="form-group">
+                        <label>Scripture Reference</label>
+                        <input type="text" name="scripture" id="sm_scripture" class="form-control premium-input" placeholder="e.g. Romans 8:28">
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label>Video URL (YouTube/Vimeo)</label>
-                <input type="url" name="video_url" id="sm_video" class="form-control" placeholder="https://youtube.com/...">
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" id="sm_desc" class="form-control premium-input" rows="3" placeholder="Brief summary of the message..."></textarea>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label>Audio File (MP3/WAV)</label>
-                <input type="file" name="audio_file" id="sm_audio" class="form-control" accept="audio/*">
-                <audio id="audio_preview" controls style="width:100%;margin-top:10px;display:none;"></audio>
+            <!-- Section: Media -->
+            <div class="form-section">
+                <div class="form-section-label"><i class='bx bx-play-circle'></i> Media Links & Files</div>
+                <div class="form-group">
+                    <label>Video URL (YouTube/Vimeo)</label>
+                    <input type="url" name="video_url" id="sm_video" class="form-control premium-input" placeholder="https://youtube.com/...">
+                </div>
+                <div class="form-group">
+                    <label>Audio File (MP3/WAV)</label>
+                    <input type="file" name="audio_file" id="sm_audio" class="form-control premium-input" accept="audio/*" onchange="previewSermonAudio(this)">
+                    <audio id="audio_preview" controls style="width:100%; margin-top:12px; display:none; border-radius:12px;"></audio>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label>Thumbnail Image (JPG/PNG/WebP)</label>
-                <input type="file" name="thumbnail" id="sm_thumb" class="form-control" accept="image/*">
+            <!-- Section: Thumbnail -->
+            <div class="form-section">
+                <div class="form-section-label"><i class='bx bx-image-add'></i> Sermon Thumbnail</div>
+                <div class="premium-upload-zone" id="smUploadZone" onclick="document.getElementById('sm_thumb').click()">
+                    <img id="sm_img_preview" src="" class="premium-upload-preview">
+                    <div class="premium-upload-prompt" id="smUploadPrompt">
+                        <i class='bx bx-image'></i>
+                        <span>Click to upload thumbnail</span>
+                        <small>JPG, PNG, WEBP • Max 5MB</small>
+                    </div>
+                    <input type="file" name="thumbnail" id="sm_thumb" accept="image/*" style="display:none;" onchange="previewSermonImage(this)">
+                </div>
             </div>
             
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" id="sm_desc" class="form-control" rows="3" placeholder="Brief summary of the message"></textarea>
-            </div>
-            
-            <button type="submit" class="btn-primary" id="saveSermonBtn" style="width:100%;">Save Sermon</button>
+            <button type="submit" class="premium-submit-btn" id="saveSermonBtn">
+                <i class='bx bx-check-circle'></i> Save Sermon
+            </button>
         </form>
     </div>
 </div>
@@ -1663,15 +1781,36 @@ function editEvent(ev) {
     document.getElementById('ev_desc').value = ev.description || '';
 
     const imgPreview = document.getElementById('ev_img_preview');
+    const uploadPrompt = document.getElementById('evUploadPrompt');
     if (ev.image) {
         imgPreview.style.display = 'block';
         imgPreview.src = '../' + ev.image;
+        uploadPrompt.style.display = 'none';
     } else {
         imgPreview.style.display = 'none';
         imgPreview.src = '';
+        uploadPrompt.style.display = 'flex';
     }
     
     slideEvent.classList.add('active');
+}
+
+function previewEventImage(input) {
+    const preview = document.getElementById('ev_img_preview');
+    const prompt = document.getElementById('evUploadPrompt');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            prompt.style.display = 'none';
+        }
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+        preview.src = '';
+        prompt.style.display = 'flex';
+    }
 }
 
 function saveEvent(e) {
@@ -1709,6 +1848,131 @@ function deleteEvent(id) {
             fd.append('action', 'delete');
             fd.append('id', id);
             fetch('save_event.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) location.reload();
+                else Swal.fire('Error', res.message, 'error');
+            });
+        }
+    });
+}
+// ── Sermon sliding panel logic ──────────────────────────────
+const slideSermon = document.getElementById('slideSermon');
+
+function openSermonForm() {
+    document.getElementById('sermonForm').reset();
+    document.getElementById('sm_id').value = '';
+    document.getElementById('sm_panel_title').textContent = 'Upload Sermon';
+    document.getElementById('sm_img_preview').style.display = 'none';
+    document.getElementById('sm_img_preview').src = '';
+    document.getElementById('smUploadPrompt').style.display = 'flex';
+    document.getElementById('audio_preview').style.display = 'none';
+    document.getElementById('audio_preview').src = '';
+    slideSermon.classList.add('active');
+}
+
+function closeSermonForm() { slideSermon.classList.remove('active'); }
+
+function editSermon(sm) {
+    document.getElementById('sermonForm').reset();
+    document.getElementById('sm_panel_title').textContent = 'Edit Sermon';
+    document.getElementById('sm_id').value = sm.id || '';
+    document.getElementById('sm_title').value = sm.title || '';
+    document.getElementById('sm_speaker').value = sm.speaker || '';
+    document.getElementById('sm_date').value = sm.sermon_date || '';
+    document.getElementById('sm_series').value = sm.series || '';
+    document.getElementById('sm_scripture').value = sm.scripture || '';
+    document.getElementById('sm_video').value = sm.video_url || '';
+    document.getElementById('sm_desc').value = sm.description || '';
+
+    const imgPreview = document.getElementById('sm_img_preview');
+    const uploadPrompt = document.getElementById('smUploadPrompt');
+    if (sm.thumbnail) {
+        imgPreview.style.display = 'block';
+        imgPreview.src = '../' + sm.thumbnail;
+        uploadPrompt.style.display = 'none';
+    } else {
+        imgPreview.style.display = 'none';
+        imgPreview.src = '';
+        uploadPrompt.style.display = 'flex';
+    }
+
+    const audioPreview = document.getElementById('audio_preview');
+    if (sm.audio_file) {
+        audioPreview.style.display = 'block';
+        audioPreview.src = '../' + sm.audio_file;
+    } else {
+        audioPreview.style.display = 'none';
+        audioPreview.src = '';
+    }
+    
+    slideSermon.classList.add('active');
+}
+
+function previewSermonImage(input) {
+    const preview = document.getElementById('sm_img_preview');
+    const prompt = document.getElementById('smUploadPrompt');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            prompt.style.display = 'none';
+        }
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+        preview.src = '';
+        prompt.style.display = 'flex';
+    }
+}
+
+function previewSermonAudio(input) {
+    const preview = document.getElementById('audio_preview');
+    if (input.files && input.files[0]) {
+        preview.src = URL.createObjectURL(input.files[0]);
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+        preview.src = '';
+    }
+}
+
+function saveSermon(e) {
+    e.preventDefault();
+    const data = new FormData(document.getElementById('sermonForm'));
+    const btn = document.getElementById('saveSermonBtn');
+    btn.disabled = true; btn.innerHTML = 'Saving…';
+
+    fetch('save_sermon.php', { method: 'POST', body: data })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            Swal.fire('Saved!', 'Sermon saved successfully.', 'success').then(() => location.reload());
+        } else {
+            Swal.fire('Error', res.message, 'error');
+            btn.disabled = false; btn.innerHTML = 'Save Sermon';
+        }
+    }).catch(() => {
+        Swal.fire('Error', 'Network error', 'error');
+        btn.disabled = false; btn.innerHTML = 'Save Sermon';
+    });
+}
+
+function deleteSermon(id) {
+    Swal.fire({
+        title: 'Delete Sermon?',
+        text: "This will remove the sermon and any associated files. This cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'Yes, delete it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const fd = new FormData();
+            fd.append('action', 'delete');
+            fd.append('sermon_id', id);
+            fetch('save_sermon.php', { method: 'POST', body: fd })
             .then(r => r.json())
             .then(res => {
                 if (res.success) location.reload();
