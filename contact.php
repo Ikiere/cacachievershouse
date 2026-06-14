@@ -50,7 +50,7 @@ $wa_num  = get_setting('whatsapp_number', '');
 <?php include 'includes/site-header.php'; ?>
 
 <!-- ── PAGE HERO ── -->
-<section class="page-hero" style="background-image:url('assets/images/join-bg.jpg');">
+<section class="page-hero" style="background-image:url('assets/images/bg.jpg');">
     <div class="page-hero-overlay"></div>
     <div class="page-hero-content">
         <span class="hero-badge"><i class="bx bx-envelope"></i> GET IN TOUCH</span>

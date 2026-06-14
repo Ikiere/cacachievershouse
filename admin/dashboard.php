@@ -1426,19 +1426,20 @@ if (document.getElementById('panel-' + targetPanel)) {
      ══════════════════════════════════════════════════ -->
 
 <!-- SLIDING PANELS -->
-<!-- EVENT FORM PANEL (Premium Redesign) -->
-<div class="slide-panel premium-slide" id="slideEvent">
-    <div class="slide-panel-header premium-slide-header">
-        <div class="slide-header-left">
-            <div class="slide-header-icon"><i class='bx bx-calendar-event'></i></div>
-            <div>
-                <h2 id="ev_panel_title">Create Event</h2>
-                <span class="slide-header-sub">Fill in the details below</span>
+<!-- EVENT FORM PANEL (Premium Center Modal) -->
+<div class="center-modal" id="slideEvent">
+    <div class="center-modal-content">
+        <div class="center-modal-header">
+            <div class="slide-header-left">
+                <div class="slide-header-icon"><i class='bx bx-calendar-event'></i></div>
+                <div>
+                    <h2 id="ev_panel_title">Create Event</h2>
+                    <span class="slide-header-sub">Fill in the details below</span>
+                </div>
             </div>
+            <button class="center-modal-close" onclick="closeEventForm()"><i class='bx bx-x'></i></button>
         </div>
-        <button class="close-panel premium-close" onclick="closeEventForm()"><i class='bx bx-x'></i></button>
-    </div>
-    <div class="slide-panel-body premium-slide-body">
+        <div class="center-modal-body">
         <form id="eventForm" onsubmit="saveEvent(event)" enctype="multipart/form-data">
             <input type="hidden" name="id" id="ev_id">
 
@@ -1529,22 +1530,24 @@ if (document.getElementById('panel-' + targetPanel)) {
                 <i class='bx bx-check-circle'></i> Save Event
             </button>
         </form>
+        </div>
     </div>
 </div>
 
-<!-- SERMON UPLOAD FORM (Premium Redesign) -->
-<div class="slide-panel premium-slide" id="slideSermon">
-    <div class="slide-panel-header premium-slide-header">
-        <div class="slide-header-left">
-            <div class="slide-header-icon sermon"><i class='bx bx-headphone'></i></div>
-            <div>
-                <h2 id="sm_panel_title">Upload Sermon</h2>
-                <span class="slide-header-sub">Share the word with your congregation</span>
+<!-- SERMON UPLOAD FORM (Premium Center Modal) -->
+<div class="center-modal" id="slideSermon">
+    <div class="center-modal-content">
+        <div class="center-modal-header">
+            <div class="slide-header-left">
+                <div class="slide-header-icon sermon"><i class='bx bx-headphone'></i></div>
+                <div>
+                    <h2 id="sm_panel_title">Upload Sermon</h2>
+                    <span class="slide-header-sub">Share the word with your congregation</span>
+                </div>
             </div>
+            <button class="center-modal-close" onclick="closeSermonForm()"><i class='bx bx-x'></i></button>
         </div>
-        <button class="close-panel premium-close" onclick="closeSermonForm()"><i class='bx bx-x'></i></button>
-    </div>
-    <div class="slide-panel-body premium-slide-body">
+        <div class="center-modal-body">
         <form id="sermonForm" onsubmit="saveSermon(event)" enctype="multipart/form-data">
             <input type="hidden" name="sermon_id" id="sm_id">
             
@@ -1616,16 +1619,18 @@ if (document.getElementById('panel-' + targetPanel)) {
                 <i class='bx bx-check-circle'></i> Save Sermon
             </button>
         </form>
+        </div>
     </div>
 </div>
 
 <!-- TESTIMONIAL FORM -->
-<div class="slide-panel" id="slideTestimonial">
-    <div class="slide-panel-header">
-        <h2 id="tm_panel_title">Add Testimonial</h2>
-        <button class="close-panel" onclick="closeTestimonialForm()"><i class='bx bx-x'></i></button>
-    </div>
-    <div class="slide-panel-body">
+<div class="center-modal" id="slideTestimonial">
+    <div class="center-modal-content">
+        <div class="center-modal-header">
+            <h2 id="tm_panel_title">Add Testimonial</h2>
+            <button class="center-modal-close" onclick="closeTestimonialForm()"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="center-modal-body">
         <form id="testimonialForm" onsubmit="saveTestimonial(event)">
             <input type="hidden" name="testimonial_id" id="tm_id">
 
@@ -1659,8 +1664,9 @@ if (document.getElementById('panel-' + targetPanel)) {
                 <label for="tm_active" style="margin:0;cursor:pointer;">Show on website</label>
             </div>
 
-            <button type="submit" class="btn-primary" id="saveTestimonialBtn" style="width:100%;">Save Testimonial</button>
+            <button type="submit" class="premium-submit-btn" id="saveTestimonialBtn">Save Testimonial</button>
         </form>
+        </div>
     </div>
 </div>
 
