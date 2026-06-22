@@ -26,62 +26,43 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 <?php include 'includes/site-header.php'; ?>
 
 <!-- ============================================================
-     HERO — Premium Full-Viewport
+     HERO — Premium Cinematic
      ============================================================ -->
 <section class="hero" id="home" aria-label="Welcome to CAC Achievers House">
-    <div class="hero-orb"></div>
+    <div class="hero-bg-overlay"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-grain"></div>
 
     <div class="hero-content">
-        <div class="hero-inner">
+        <div class="hero-center">
 
-            <span class="hero-eyebrow">
-                <i class="bx bx-church"></i>
-                Welcome to <?= htmlspecialchars(get_setting('site_name','CAC Achievers House')) ?>
-            </span>
-
-            <h1>
-                <?php
-                $hero_title = get_setting('hero_title','Where Faith Meets Destiny');
-                // Wrap the first word that's a keyword in a highlight span
-                echo nl2br(htmlspecialchars($hero_title));
-                ?>
-            </h1>
-
-            <p><?= htmlspecialchars(get_setting('hero_subtitle','A vibrant community where lives are restored, purposes are discovered, and believers are empowered to reach their God-given potential.')) ?></p>
-
-            <div class="hero-buttons">
-                <a href="#services" class="btn-primary">
-                    Join Us Sunday <i class="bx bx-right-arrow-alt"></i>
-                </a>
-                <a href="sermons.php" class="btn-outline">
-                    <i class="bx bx-play-circle"></i> Watch Sermons
-                </a>
+            <div class="hero-label">
+                <span class="hero-label-dot"></span>
+                Welcome to Church
             </div>
 
-            <div class="hero-stats">
-                <div class="hero-stat">
-                    <strong>15+</strong>
-                    <span>Years of Ministry</span>
-                </div>
-                <div class="hero-stat">
-                    <strong>500+</strong>
-                    <span>Active Members</span>
-                </div>
-                <div class="hero-stat">
-                    <strong>6</strong>
-                    <span>Ministry Departments</span>
-                </div>
-                <div class="hero-stat">
-                    <strong>100+</strong>
-                    <span>Sermons Preached</span>
-                </div>
+            <h1>
+                Welcome to<br>
+                <span class="hero-church-name">CAC Achievers House</span><br>
+                <span class="hero-location">Derby</span>
+            </h1>
+
+            <p>A place where Christ is exalted and lives are transformed. We are delighted to have you worship with us in an atmosphere of prayer, praise, and God's presence.</p>
+
+            <div class="hero-actions">
+                <a href="#services" class="hero-btn-primary">
+                    Join Us Sunday <i class="bx bx-right-arrow-alt"></i>
+                </a>
+                <a href="sermons.php" class="hero-btn-ghost">
+                    <i class="bx bx-play-circle"></i> Watch Sermons
+                </a>
             </div>
 
         </div>
     </div>
 
-    <div class="scroll-indicator" aria-hidden="true">
-        <div class="scroll-mouse"></div>
+    <div class="hero-scroll" aria-hidden="true">
+        <div class="hero-scroll-line"></div>
         <span>Scroll</span>
     </div>
 </section>
@@ -106,27 +87,27 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                 <div class="icon-box-1">
                     <i class="bx bx-sun"></i>
                 </div>
-                <h3>Sunday Service</h3>
-                <span class="time">8:00 AM – 11:00 AM</span>
+                <h3>Sunday Worship</h3>
+                <span class="time">10:00 AM – 12:00 PM</span>
                 <p>Powerful worship, inspiring messages, and fellowship with believers. The highlight of the week.</p>
             </div>
 
             <div class="service-card light reveal reveal-delay-1">
                 <div class="icon-box-1">
-                    <i class="bx bx-book-open"></i>
+                    <i class="bx bx-heart"></i>
                 </div>
-                <h3>Bible Study</h3>
-                <span class="time accent">Wednesday · 6:00 PM</span>
-                <p>Dive deeper into God's Word with interactive study sessions and transformative discussions.</p>
+                <h3>Monday Achievers Pray</h3>
+                <span class="time accent">Monday · 8:30 PM – 9:30 PM</span>
+                <p>Corporate prayer and intercession for personal and communal breakthrough with the body of Christ.</p>
             </div>
 
             <div class="service-card dark reveal reveal-delay-2">
                 <div class="icon-box-1">
-                    <i class="bx bx-heart"></i>
+                    <i class="bx bx-book-open"></i>
                 </div>
-                <h3>Prayer Meeting</h3>
-                <span class="time accent">Friday · 7:00 PM</span>
-                <p>Experience the power of corporate prayer and intercession for personal and communal breakthrough.</p>
+                <h3>Wednesday Bible Study</h3>
+                <span class="time accent">Wednesday · 7:00 PM – 8:10 PM</span>
+                <p>Dive deeper into God's Word with interactive study sessions and transformative discussions.</p>
             </div>
 
         </div>
@@ -148,12 +129,10 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
         <div class="about-strip-body reveal reveal-delay-1">
             <span class="section-badge"><i class="bx bx-info-circle"></i> WHO WE ARE</span>
             <h2 class="section-title" id="about-heading">
-                A Church Built on<br>Faith & <span>Purpose</span>
+                A Community of<br>Faith and <span>Purpose</span>
             </h2>
             <p class="section-subtitle">
-                At CAC Achievers House, we believe every life carries a God-given destiny.
-                Our mission is to help you discover yours — through Spirit-filled worship,
-                transformative teaching, and a community that walks with you every step of the way.
+                Experience a purpose-driven church where faith, love, and a passion for Christ thrives. Together, we grow in God's Word, encourage one another, and build lasting relationships and impact generations.
             </p>
 
             <div class="value-list">
