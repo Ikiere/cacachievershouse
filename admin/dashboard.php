@@ -1015,79 +1015,6 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
     </div><!-- /admin-content -->
 </main>
 
-<!-- ============================================================
-     EVENT MODAL
-     ============================================================ -->
-<div class="modal-overlay" id="eventModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h3><i class='bx bx-calendar-plus' style="color:var(--primary)"></i> Create Event</h3>
-            <button class="modal-close" onclick="document.getElementById('eventModal').classList.remove('open')">&times;</button>
-        </div>
-        <form id="eventForm" enctype="multipart/form-data">
-            <div class="form-group">
-                <label>Event Title *</label>
-                <input name="title" class="form-control" required placeholder="e.g. Sunday Worship Service">
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Event Type *</label>
-                    <select name="event_type" class="form-control" required>
-                        <option value="">Select type</option>
-                        <option>Worship</option>
-                        <option>Conference</option>
-                        <option>Outreach</option>
-                        <option>Prayer</option>
-                        <option>Fellowship</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select name="status" class="form-control">
-                        <option value="upcoming">Upcoming</option>
-                        <option value="planning">Planning</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Start Date *</label>
-                    <input type="date" name="start_date" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Start Time *</label>
-                    <input type="time" name="start_time" class="form-control" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>End Date</label>
-                    <input type="date" name="end_date" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>End Time</label>
-                    <input type="time" name="end_time" class="form-control">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Venue Name</label>
-                <input name="venue_name" class="form-control" placeholder="e.g. Main Auditorium">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" class="form-control" placeholder="Brief description of the event…"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Event Image</label>
-                <input type="file" name="image" class="form-control" accept="image/*">
-            </div>
-            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('eventModal').classList.remove('open')">Cancel</button>
-                <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Save Event</button>
-            </div>
-        </form>
-    </div>
-</div>
 
 <!-- ============================================================
      JAVASCRIPT
@@ -1288,22 +1215,40 @@ function editSermon(s) {
 
 function saveSermon(e) {
     e.preventDefault();
-    const data = new FormData(document.getElementById('sermonForm'));
+    const form = document.getElementById('sermonForm');
+    const data = new FormData(form);
     const btn = document.getElementById('saveSermonBtn');
-    btn.disabled = true; btn.innerHTML = 'Saving…';
+    btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Saving…';
 
     fetch('save_sermon.php', { method: 'POST', body: data })
-    .then(r => r.json())
+    .then(r => {
+        const ct = r.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) {
+            return r.text().then(txt => { throw new Error('Server returned non-JSON: ' + txt.substring(0, 200)); });
+        }
+        return r.json();
+    })
     .then(res => {
         if (res.success) {
-            Swal.fire('Saved!', 'Sermon saved successfully.', 'success').then(() => location.reload());
+            closeSermonForm();
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Sermon saved successfully!',
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true
+            });
+            setTimeout(() => location.reload(), 1200);
         } else {
-            Swal.fire('Error', res.message, 'error');
-            btn.disabled = false; btn.innerHTML = 'Save Sermon';
+            Swal.fire({ icon: 'error', title: 'Save Failed', text: res.message, confirmButtonColor: 'var(--primary)' });
+            btn.disabled = false; btn.innerHTML = '<i class="bx bx-check-circle"></i> Save Sermon';
         }
-    }).catch(() => {
-        Swal.fire('Error', 'Network error', 'error');
-        btn.disabled = false; btn.innerHTML = 'Save Sermon';
+    }).catch(err => {
+        console.error('Save sermon error:', err);
+        Swal.fire({ icon: 'error', title: 'Network Error', text: 'Could not reach the server. Please try again.', confirmButtonColor: 'var(--primary)' });
+        btn.disabled = false; btn.innerHTML = '<i class="bx bx-check-circle"></i> Save Sermon';
     });
 }
 
@@ -1821,22 +1766,41 @@ function previewEventImage(input) {
 
 function saveEvent(e) {
     e.preventDefault();
-    const data = new FormData(document.getElementById('eventForm'));
+    const form = document.getElementById('eventForm');
+    const data = new FormData(form);
     const btn = document.getElementById('saveEventBtn');
-    btn.disabled = true; btn.innerHTML = 'Saving…';
+    btn.disabled = true; btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Saving…';
 
     fetch('save_event.php', { method: 'POST', body: data })
-    .then(r => r.json())
+    .then(r => {
+        const ct = r.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) {
+            return r.text().then(txt => { throw new Error('Server returned non-JSON: ' + txt.substring(0, 200)); });
+        }
+        return r.json();
+    })
     .then(res => {
         if (res.success) {
-            Swal.fire('Saved!', 'Event saved successfully.', 'success').then(() => location.reload());
+            closeEventForm();
+            // Use a lightweight toast instead of a blocking SweetAlert
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Event saved successfully!',
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true
+            });
+            setTimeout(() => location.reload(), 1200);
         } else {
-            Swal.fire('Error', res.message, 'error');
-            btn.disabled = false; btn.innerHTML = 'Save Event';
+            Swal.fire({ icon: 'error', title: 'Save Failed', text: res.message, confirmButtonColor: 'var(--primary)' });
+            btn.disabled = false; btn.innerHTML = '<i class="bx bx-check-circle"></i> Save Event';
         }
-    }).catch(() => {
-        Swal.fire('Error', 'Network error', 'error');
-        btn.disabled = false; btn.innerHTML = 'Save Event';
+    }).catch(err => {
+        console.error('Save event error:', err);
+        Swal.fire({ icon: 'error', title: 'Network Error', text: 'Could not reach the server. Please try again.', confirmButtonColor: 'var(--primary)' });
+        btn.disabled = false; btn.innerHTML = '<i class="bx bx-check-circle"></i> Save Event';
     });
 }
 
@@ -1944,49 +1908,6 @@ function previewSermonAudio(input) {
     }
 }
 
-function saveSermon(e) {
-    e.preventDefault();
-    const data = new FormData(document.getElementById('sermonForm'));
-    const btn = document.getElementById('saveSermonBtn');
-    btn.disabled = true; btn.innerHTML = 'Saving…';
-
-    fetch('save_sermon.php', { method: 'POST', body: data })
-    .then(r => r.json())
-    .then(res => {
-        if (res.success) {
-            Swal.fire('Saved!', 'Sermon saved successfully.', 'success').then(() => location.reload());
-        } else {
-            Swal.fire('Error', res.message, 'error');
-            btn.disabled = false; btn.innerHTML = 'Save Sermon';
-        }
-    }).catch(() => {
-        Swal.fire('Error', 'Network error', 'error');
-        btn.disabled = false; btn.innerHTML = 'Save Sermon';
-    });
-}
-
-function deleteSermon(id) {
-    Swal.fire({
-        title: 'Delete Sermon?',
-        text: "This will remove the sermon and any associated files. This cannot be undone.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        confirmButtonText: 'Yes, delete it'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const fd = new FormData();
-            fd.append('action', 'delete');
-            fd.append('sermon_id', id);
-            fetch('save_sermon.php', { method: 'POST', body: fd })
-            .then(r => r.json())
-            .then(res => {
-                if (res.success) location.reload();
-                else Swal.fire('Error', res.message, 'error');
-            });
-        }
-    });
-}
 </script>
 
 </body>

@@ -404,7 +404,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 
             <!-- Event List -->
             <div class="event-list">
-                <?php foreach (array_slice($events_list, 0, 3) as $i => $ev):
+                <?php foreach (array_slice($events_list, 1, 3) as $i => $ev):
                     $style = $i % 2 === 0 ? 'primary' : 'light';
                     $delay = $i > 0 ? ' reveal-delay-' . $i : '';
                 ?>

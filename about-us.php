@@ -44,6 +44,37 @@ include 'includes/header.php';
         </div>
     </section>
 
+    <!-- ── MEET THE PASTOR — Premium Profile ── -->
+    <section class="pastor-profile" aria-labelledby="pastor-heading">
+        <div class="about-container">
+            <div class="pastor-grid">
+                <div class="pastor-image-wrapper reveal">
+                    <div class="pastor-image-frame">
+                        <img src="assets/images/pastor.jpg" alt="Pastor Tosin Adegbola" class="pastor-img">
+                        <div class="pastor-image-accent"></div>
+                    </div>
+                </div>
+                <div class="pastor-content reveal reveal-delay-1">
+                    <span class="about-pill">LEAD PASTOR</span>
+                    <h2 id="pastor-heading">Pastor Tosin <span class="about-accent">Adegbola</span></h2>
+                    <p class="pastor-lead">
+                        A visionary leader dedicated to raising Kingdom Achievers through the undiluted teaching of God's Word, fervent prayer, and genuine love.
+                    </p>
+                    <p>
+                        Pastor Tosin Adegbola carries a profound mandate to equip believers for impactful living. Under his dynamic leadership, CAC Achievers House has grown into a vibrant family of faith where people discover their God-given purpose and step into their divine destinies.
+                    </p>
+                    <p>
+                        With a passion for spiritual excellence and community transformation, he continually inspires the congregation to deepen their relationship with Christ and reflect His love in every sphere of life.
+                    </p>
+                    
+                    <div class="pastor-signature-area">
+                        <div class="pastor-title">Lead Pastor, CAC Achievers House</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ── TIMES OF SERVICE ── -->
     <section class="about-services" aria-labelledby="services-heading">
         <div class="about-container">

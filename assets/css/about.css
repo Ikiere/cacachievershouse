@@ -68,6 +68,116 @@
     color: #0f172a;
 }
 
+/* ── MEET THE PASTOR ── */
+.pastor-profile {
+    padding: 6rem 0;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.pastor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 5rem;
+    align-items: center;
+}
+
+.pastor-image-wrapper {
+    position: relative;
+    padding-right: 2rem;
+    padding-bottom: 2rem;
+}
+
+.pastor-image-frame {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(10, 31, 68, 0.15);
+    z-index: 2;
+}
+
+.pastor-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 4/5;
+    transform: scale(1.02);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pastor-image-frame:hover .pastor-img {
+    transform: scale(1.06);
+}
+
+.pastor-image-accent {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.pastor-image-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 80%;
+    height: 80%;
+    background: var(--primary-light, #E8F0FF);
+    border-radius: 20px;
+    z-index: 1;
+    transform: translate(10px, 10px);
+}
+
+.pastor-content {
+    padding-left: 1rem;
+}
+
+.pastor-content h2 {
+    font-family: var(--font-display, 'Playfair Display', serif);
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+.pastor-lead {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #1e293b;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    border-left: 3px solid var(--primary, #0047AB);
+    padding-left: 1.5rem;
+}
+
+.pastor-content p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #475569;
+    margin-bottom: 1.25rem;
+}
+
+.pastor-signature-area {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.pastor-title {
+    font-family: var(--font-display, 'Playfair Display', serif);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: 1px;
+}
+
 /* ── MISSION & VISION ── */
 .about-mission {
     padding: 5rem 0;
@@ -366,6 +476,27 @@
 
 /* ── TABLET (max 1024px) ── */
 @media (max-width: 1024px) {
+    .pastor-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    
+    .pastor-image-wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+        padding-right: 1.5rem;
+    }
+
+    .pastor-content {
+        padding-left: 0;
+        text-align: center;
+    }
+
+    .pastor-lead {
+        border-left: none;
+        padding-left: 0;
+    }
+
     .values-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -377,6 +508,14 @@
 
 /* ── MOBILE (max 640px) ── */
 @media (max-width: 640px) {
+    .pastor-profile {
+        padding: 4rem 0;
+    }
+
+    .pastor-content h2 {
+        font-size: 2rem;
+    }
+
     .about-story {
         padding: 3.5rem 0;
     }
