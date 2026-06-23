@@ -3,7 +3,7 @@ require_once 'includes/config.php';
 $seo = [
     'title'       => 'Welcome',
     'description' => htmlspecialchars(get_setting('site_name','CAC Achievers House')) . ' — ' . htmlspecialchars(get_setting('site_tagline','Where Faith Meets Destiny')) . '. Join us for life-changing worship, Bible study, and vibrant church community.',
-    'url'         => 'http://' . ($_SERVER['HTTP_HOST'] ?? '') . '/cac/index.php',
+    'url'         => 'http://' . ($_SERVER['HTTP_HOST'] ?? '') . (defined('BASE_URL') ? BASE_URL : '/cac/'),
 ];
 include 'includes/header.php';
 
@@ -97,7 +97,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                     <i class="bx bx-heart"></i>
                 </div>
                 <h3>Monday Achievers Pray</h3>
-                <span class="time accent">Monday · 8:30 PM – 9:30 PM</span>
+                <span class="time accent">8:30 PM – 9:30 PM</span>
                 <p>Corporate prayer and intercession for personal and communal breakthrough with the body of Christ.</p>
             </div>
 
@@ -106,7 +106,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                     <i class="bx bx-book-open"></i>
                 </div>
                 <h3>Wednesday Bible Study</h3>
-                <span class="time accent">Wednesday · 7:00 PM – 8:10 PM</span>
+                <span class="time accent">7:00 PM – 8:10 PM</span>
                 <p>Dive deeper into God's Word with interactive study sessions and transformative discussions.</p>
             </div>
 
@@ -305,8 +305,8 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
         </div>
 
         <div style="text-align:center;margin-top:3rem;" class="reveal">
-            <a href="ministries.php" class="btn-primary">
-                Explore All Ministries <i class="bx bx-right-arrow-alt"></i>
+            <a href="contact.php" class="btn-primary">
+                Join a Ministry <i class="bx bx-right-arrow-alt"></i>
             </a>
         </div>
 
@@ -580,8 +580,9 @@ window.addEventListener('scroll', () => {
     });
     navLinks.forEach(link => {
         link.classList.remove('active');
-        if (link.getAttribute('href') === '#' + current ||
-           (current === '' && link.getAttribute('href') === 'index.php')) {
+        const href = link.getAttribute('href');
+        if (href === '#' + current ||
+           (current === '' && (href === 'index.php' || href === './' || href === '<?= $base ?>'))) {
             link.classList.add('active');
         }
     });

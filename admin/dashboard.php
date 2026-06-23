@@ -42,6 +42,7 @@ $gallery_count  = db_count($conn, "SELECT COUNT(*) as n FROM gallery");
 $messages_count = db_count($conn, "SELECT COUNT(*) as n FROM contacts WHERE is_read=0");
 $sermons_count  = db_count($conn, "SELECT COUNT(*) as n FROM sermons");
 $testimonials_count = db_count($conn, "SELECT COUNT(*) as n FROM testimonials");
+$ministries_count = db_count($conn, "SELECT COUNT(*) as n FROM ministries");
 
 $events_result      = db_select($conn, "SELECT * FROM events ORDER BY start_date DESC LIMIT 12");
 $gallery_result     = db_select($conn, "SELECT * FROM gallery ORDER BY uploaded_at DESC LIMIT 18");
@@ -49,6 +50,7 @@ $members_result     = db_select($conn, "SELECT * FROM admins ORDER BY created_at
 $messages_result    = db_select($conn, "SELECT * FROM contacts ORDER BY created_at DESC LIMIT 20");
 $sermons_result     = db_select($conn, "SELECT * FROM sermons ORDER BY sermon_date DESC LIMIT 50");
 $testimonials_result = db_select($conn, "SELECT * FROM testimonials ORDER BY sort_order ASC, created_at DESC");
+$ministries_result  = db_select($conn, "SELECT * FROM ministries ORDER BY sort_order ASC");
 
 // ── Site settings ──────────────────────────────────────────────
 $s    = [];
@@ -144,6 +146,14 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
             <?php endif; ?>
         </a>
 
+        <a class="nav-item" data-panel="ministries" href="#" onclick="switchPanel('ministries',this);return false;">
+            <i class='bx bx-crown'></i>
+            <span>Ministries</span>
+            <?php if ($ministries_count > 0): ?>
+            <span class="nav-badge"><?= $ministries_count ?></span>
+            <?php endif; ?>
+        </a>
+
         <a class="nav-item" data-panel="testimonials" href="#" onclick="switchPanel('testimonials',this);return false;">
             <i class='bx bx-comment-dots'></i>
             <span>Testimonials</span>
@@ -167,7 +177,7 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
             <span>Site Settings</span>
         </a>
 
-        <a class="nav-item" href="../index.php" target="_blank">
+        <a class="nav-item" href="../" target="_blank">
             <i class='bx bx-link-external'></i>
             <span>View Website</span>
         </a>
@@ -213,7 +223,7 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                 <i class='bx bx-bell'></i>
                 <span class="notif-dot"></span>
             </button>
-            <a href="../index.php" target="_blank" class="topbar-view-site">
+            <a href="../" target="_blank" class="topbar-view-site">
                 <i class='bx bx-globe'></i>
                 <span>View Site</span>
             </a>
@@ -622,6 +632,54 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                     No messages yet.
                 </div>
                 <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════
+             PANEL: MINISTRIES
+             ══════════════════════════════════════════════════ -->
+        <div class="admin-panel" id="panel-ministries">
+            <div class="page-header">
+                <div class="page-header-left">
+                    <h1>Ministries</h1>
+                    <p>Manage ministry details and schedules</p>
+                </div>
+            </div>
+
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ministry</th>
+                            <th>Leader</th>
+                            <th>Tagline</th>
+                            <th width="100">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if ($ministries_result && $ministries_result->num_rows > 0):
+                            $ministries_result->data_seek(0);
+                            while ($min = $ministries_result->fetch_assoc()):
+                        ?>
+                        <tr>
+                            <td>
+                                <strong><?= htmlspecialchars($min['name']) ?></strong>
+                                <br><small style="color:var(--text-muted);"><i class="<?= htmlspecialchars($min['icon']) ?>"></i> <?= htmlspecialchars($min['badge_text'] ?? '') ?></small>
+                            </td>
+                            <td><?= htmlspecialchars($min['leader'] ?? '') ?></td>
+                            <td><span style="font-size:0.85rem;color:var(--text-muted);"><?= htmlspecialchars($min['tagline'] ?? '') ?></span></td>
+                            <td>
+                                <button class="action-btn edit" title="Edit"
+                                        onclick='editMinistry(<?= json_encode($min) ?>)'>
+                                    <i class='bx bx-edit-alt'></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <?php endwhile; else: ?>
+                        <tr><td colspan="4" class="text-center">No ministries found. Run migrate.php to seed them.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -1080,6 +1138,7 @@ const panelTitles = {
     events:   'Events',
     gallery:  'Gallery',
     messages: 'Messages',
+    ministries: 'Ministries',
     settings: 'Site Settings'
 };
 
@@ -1692,7 +1751,48 @@ if (document.getElementById('panel-' + targetPanel)) {
     </div>
 </div>
 
+<!-- MINISTRY FORM -->
+<div class="center-modal" id="ministryModal" style="display:none;">
+    <div class="center-modal-content">
+        <div class="center-modal-header">
+            <h2 id="minModalTitle">Edit Ministry</h2>
+            <button class="center-modal-close" onclick="closeModal('ministryModal')"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="center-modal-body">
+            <form id="ministryForm">
+                <input type="hidden" name="id" id="min_id">
+                <div class="form-group">
+                    <label>Ministry Name</label>
+                    <input type="text" name="name" id="min_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Leader</label>
+                    <input type="text" name="leader" id="min_leader" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Tagline</label>
+                    <input type="text" name="tagline" id="min_tagline" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" id="min_description" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Schedules</label>
+                    <div id="scheduleContainer" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;"></div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addScheduleRow()">+ Add Row</button>
+                </div>
+                <button type="submit" id="saveMinBtn" class="premium-submit-btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
+// ── Modal Helpers ──────────────────────────────────────────
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
 // ── Testimonials sliding panel logic ────────────────────────
 const slideTestimonial = document.getElementById('slideTestimonial');
 
@@ -1985,7 +2085,83 @@ function previewSermonAudio(input) {
     }
 }
 
-</script>
+/* ── MINISTRIES ── */
+function editMinistry(min) {
+    document.getElementById('minModalTitle').textContent = 'Edit ' + min.name;
+    document.getElementById('min_id').value = min.id;
+    document.getElementById('min_name').value = min.name;
+    document.getElementById('min_leader').value = min.leader || '';
+    document.getElementById('min_tagline').value = min.tagline || '';
+    document.getElementById('min_description').value = min.description || '';
+    
+    const container = document.getElementById('scheduleContainer');
+    container.innerHTML = '';
+    
+    let schedule = [];
+    if (min.schedule) {
+        try { schedule = JSON.parse(min.schedule); } catch(e) {}
+    }
+    
+    if (schedule.length > 0) {
+        schedule.forEach(s => addScheduleRow(s.label, s.detail));
+    } else {
+        addScheduleRow(); // add one empty row
+    }
+    
+    openModal('ministryModal');
+}
 
+function addScheduleRow(label = '', detail = '') {
+    const container = document.getElementById('scheduleContainer');
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.gap = '0.5rem';
+    row.style.alignItems = 'flex-start';
+    
+    row.innerHTML = `
+        <div style="flex:1;">
+            <input type="text" name="schedule_label[]" placeholder="Label (e.g. Sunday School)" value="${label.replace(/"/g, '&quot;')}" style="margin-bottom:0.4rem;">
+            <input type="text" name="schedule_detail[]" placeholder="Detail (e.g. Sundays 8:00 AM)" value="${detail.replace(/"/g, '&quot;')}">
+        </div>
+        <button type="button" style="background:#fee2e2;color:#ef4444;border:none;width:38px;height:38px;border-radius:8px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;" onclick="this.parentElement.remove()">
+            <i class='bx bx-trash'></i>
+        </button>
+    `;
+    container.appendChild(row);
+}
+
+document.getElementById('ministryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveMinBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Saving...';
+
+    fetch('save_ministry.php', {
+        method: 'POST',
+        body: new FormData(this)
+    })
+    .then(res => res.text())
+    .then(data => {
+        if(data.trim() === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Saved!',
+                text: 'Ministry updated successfully.',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => location.reload());
+        } else {
+            Swal.fire('Error', data, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+        }
+    })
+    .catch(err => {
+        Swal.fire('Error', err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Save Changes';
+    });
+});
+</script>
 </body>
 </html>

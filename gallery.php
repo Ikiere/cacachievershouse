@@ -23,6 +23,10 @@ foreach ($images as $img) {
         $categories[] = $img['category'];
     }
 }
+
+// Pre-selected category from ?cat= query param (e.g. from ministry pages)
+$preselect_cat = htmlspecialchars($_GET['cat'] ?? 'All');
+if (!in_array($preselect_cat, $categories)) { $preselect_cat = 'All'; }
 ?>
 <body>
 <?php include 'includes/site-header.php'; ?>
@@ -51,7 +55,7 @@ foreach ($images as $img) {
     <!-- Filter Tabs -->
     <div class="gallery-filters" id="galleryFilters">
         <?php foreach ($categories as $cat): ?>
-        <button class="gallery-filter-btn <?= $cat === 'All' ? 'active' : '' ?>"
+        <button class="gallery-filter-btn <?= $cat === $preselect_cat ? 'active' : '' ?>"
                 data-filter="<?= htmlspecialchars($cat) ?>">
             <?= htmlspecialchars($cat) ?>
         </button>
@@ -124,6 +128,17 @@ filterBtns.forEach(btn => {
         });
     });
 });
+
+// Run initial filter if ?cat= was passed
+const initialFilter = '<?= $preselect_cat ?>';
+if (initialFilter !== 'All') {
+    galleryItems.forEach(item => {
+        const match = item.dataset.category === initialFilter;
+        item.style.display = match ? '' : 'none';
+    });
+    // Scroll to gallery section automatically
+    document.getElementById('gallery-heading').scrollIntoView({ behavior: 'smooth' });
+}
 
 /* ── LIGHTBOX ── */
 const lightbox        = document.getElementById('lightbox');

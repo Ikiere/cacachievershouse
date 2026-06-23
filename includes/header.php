@@ -65,4 +65,5 @@
     <link rel="stylesheet" href="assets/css/about.css">
     <link rel="stylesheet" href="assets/css/pages.css">
     <link rel="stylesheet" href="assets/css/single-event.css">
+    <link rel="stylesheet" href="assets/css/ministry.css">
 </head>

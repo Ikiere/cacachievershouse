@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
     }
 }
 
-// Fetch existing
+// Fetch existing images
 $images = [];
 $res = $conn->query("SELECT * FROM gallery ORDER BY uploaded_at DESC");
 if ($res) {
@@ -84,87 +84,333 @@ if ($res) {
     }
 }
 
-include 'includes/navbar.php';
+// Fetch ministry categories for dropdown
+$gallery_categories = ['General'];
+$cat_res = @$conn->query("SELECT name FROM `ministries` WHERE is_active = 1 ORDER BY sort_order ASC");
+if ($cat_res && $cat_res->num_rows > 0) {
+    while ($crow = $cat_res->fetch_assoc()) {
+        $gallery_categories[] = $crow['name'];
+    }
+} else {
+    // Fallback if ministries table not yet created
+    $gallery_categories = array_merge($gallery_categories, ["Youth Ministry", "Children's Church", "Women's Fellowship", "Evangelism Committee", "Events", "Worship"]);
+}
+// Also add any existing categories from gallery that might not be in ministries
+$existing_cats_res = @$conn->query("SELECT DISTINCT category FROM gallery WHERE category != 'General' ORDER BY category");
+if ($existing_cats_res) {
+    while ($ec = $existing_cats_res->fetch_assoc()) {
+        if (!in_array($ec['category'], $gallery_categories)) {
+            $gallery_categories[] = $ec['category'];
+        }
+    }
+}
+
+// Define count helper
+if (!function_exists('db_count')) {
+    function db_count(mysqli $db, string $sql): int {
+        $res = @$db->query($sql);
+        if (!$res) return 0;
+        $row = $res->fetch_assoc();
+        return (int) ($row['n'] ?? 0);
+    }
+}
+
+$members_count  = db_count($conn, "SELECT COUNT(*) as n FROM admins");
+$events_count   = db_count($conn, "SELECT COUNT(*) as n FROM events WHERE status='upcoming'");
+$gallery_count  = db_count($conn, "SELECT COUNT(*) as n FROM gallery");
+$messages_count = db_count($conn, "SELECT COUNT(*) as n FROM contacts WHERE is_read=0");
+$sermons_count  = db_count($conn, "SELECT COUNT(*) as n FROM sermons");
+$testimonials_count = db_count($conn, "SELECT COUNT(*) as n FROM testimonials");
+$ministries_count = db_count($conn, "SELECT COUNT(*) as n FROM ministries");
+
+$admin_name  = htmlspecialchars($_SESSION['admin_name'] ?? 'Administrator');
+$admin_email = htmlspecialchars($_SESSION['admin_email'] ?? '');
+$admin_role  = $_SESSION['admin_role'] ?? 'editor';
+$avatar_char = strtoupper(substr($admin_name, 0, 1));
+
+// Retrieve Site Settings
+$s = [];
+$sres = @$conn->query("SELECT setting_key, setting_value FROM site_settings");
+if ($sres) {
+    while ($row = $sres->fetch_assoc()) {
+        $s[$row['setting_key']] = $row['setting_value'];
+    }
+}
+$get = function($k, $d = '') use (&$s) { return $s[$k] ?? $d; };
+$logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery Management — <?= htmlspecialchars($get('site_name', 'CAC Achievers House')) ?></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="assets/admin.css">
 <style>
-/* Reusing some dashboard styles */
-body { font-family: 'Inter', sans-serif; background: #f8fafc; margin: 0; }
-.dashboard-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-.card { background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 2rem; }
-h2 { margin-top: 0; color: #0f172a; }
-
-.upload-form { display: grid; gap: 1rem; max-width: 500px; }
-.form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: #334155; }
-.form-group input { width: 100%; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; }
-.btn-primary { background: #2563eb; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
-.alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 500; }
-.alert.error { background: #fee2e2; color: #991b1b; }
-.alert.success { background: #dcfce7; color: #166534; }
-
-.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-.gallery-item { border-radius: 8px; overflow: hidden; background: #f1f5f9; position: relative; }
-.gallery-item img { width: 100%; height: 150px; object-fit: cover; display: block; }
-.gallery-info { padding: 0.75rem; font-size: 0.8rem; }
-.gallery-info p { margin: 0 0 0.5rem 0; font-weight: 600; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.badge { background: #e2e8f0; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; color: #475569; }
-.btn-delete { position: absolute; top: 0.5rem; right: 0.5rem; background: #ef4444; color: #fff; border: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    :root { --primary: <?= htmlspecialchars($get('primary_color', '#f97316')) ?>; }
 </style>
+</head>
+<body>
 
-<div class="dashboard-container">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-        <div>
-            <h1 style="margin:0; font-size:1.8rem;">Gallery Management</h1>
-            <p style="margin:0.5rem 0 0 0; color:#64748b;">Upload and manage photos for the public gallery.</p>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar" id="adminSidebar">
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <div class="sidebar-logo">
+            <?php if ($logo_path && file_exists(dirname(__DIR__) . '/' . $logo_path)): ?>
+                <img src="../<?= htmlspecialchars($logo_path) ?>?v=<?= filemtime(dirname(__DIR__) . '/' . $logo_path) ?>"
+                     alt="<?= htmlspecialchars($get('site_name')) ?>" id="sidebarLogoImg">
+            <?php else: ?>
+                <i class='bx bx-church'></i>
+            <?php endif; ?>
         </div>
-        <a href="dashboard.php" style="color:#2563eb; text-decoration:none; font-weight:600;"><i class='bx bx-arrow-back'></i> Back to Dashboard</a>
+        <div class="sidebar-brand-text">
+            <h2><?= htmlspecialchars($get('site_name', 'CAC Admin')) ?></h2>
+            <span>Admin Panel</span>
+        </div>
     </div>
 
-    <div class="card">
-        <h2>Upload New Photo</h2>
-        <?php if ($error): ?> <div class="alert error"><?= htmlspecialchars($error) ?></div> <?php endif; ?>
-        <?php if ($success): ?> <div class="alert success"><?= htmlspecialchars($success) ?></div> <?php endif; ?>
+    <!-- Navigation -->
+    <nav class="sidebar-nav" aria-label="Admin navigation">
+        <span class="nav-section-label">Main</span>
 
-        <form action="gallery.php" method="POST" enctype="multipart/form-data" class="upload-form">
-            <div class="form-group">
-                <label>Image File (JPG, PNG, WEBP — max 5MB)</label>
-                <input type="file" name="image" accept="image/jpeg, image/png, image/webp" required>
-                <small style="color:#64748b;display:block;margin-top:0.3rem;">EXIF metadata (GPS, camera info) will be automatically stripped for security.</small>
+        <a class="nav-item" href="dashboard.php#overview">
+            <i class='bx bx-grid-alt'></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a class="nav-item" href="dashboard.php#members">
+            <i class='bx bx-user-circle'></i>
+            <span>Members</span>
+        </a>
+
+        <a class="nav-item" href="dashboard.php#events">
+            <i class='bx bx-calendar-event'></i>
+            <span>Events</span>
+        </a>
+
+        <a class="nav-item active" href="gallery.php">
+            <i class='bx bx-images'></i>
+            <span>Gallery</span>
+            <?php if ($gallery_count > 0): ?>
+            <span class="nav-badge"><?= $gallery_count ?></span>
+            <?php endif; ?>
+        </a>
+
+        <a class="nav-item" href="dashboard.php#sermons">
+            <i class='bx bx-headphone'></i>
+            <span>Sermons</span>
+            <?php if ($sermons_count > 0): ?>
+            <span class="nav-badge"><?= $sermons_count ?></span>
+            <?php endif; ?>
+        </a>
+
+        <a class="nav-item" href="dashboard.php#ministries">
+            <i class='bx bx-crown'></i>
+            <span>Ministries</span>
+            <?php if ($ministries_count > 0): ?>
+            <span class="nav-badge"><?= $ministries_count ?></span>
+            <?php endif; ?>
+        </a>
+
+        <a class="nav-item" href="dashboard.php#testimonials">
+            <i class='bx bx-comment-dots'></i>
+            <span>Testimonials</span>
+            <?php if ($testimonials_count > 0): ?>
+            <span class="nav-badge"><?= $testimonials_count ?></span>
+            <?php endif; ?>
+        </a>
+
+        <a class="nav-item" href="dashboard.php#messages">
+            <i class='bx bx-message-square-dots'></i>
+            <span>Messages</span>
+            <?php if ($messages_count > 0): ?>
+            <span class="nav-badge"><?= $messages_count ?></span>
+            <?php endif; ?>
+        </a>
+
+        <span class="nav-section-label">Site</span>
+
+        <a class="nav-item" href="dashboard.php#settings">
+            <i class='bx bx-cog'></i>
+            <span>Site Settings</span>
+        </a>
+
+        <a class="nav-item" href="../" target="_blank">
+            <i class='bx bx-link-external'></i>
+            <span>View Website</span>
+        </a>
+    </nav>
+
+    <!-- User footer -->
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="user-avatar"><?= $avatar_char ?></div>
+            <div class="user-info">
+                <strong><?= $admin_name ?></strong>
+                <span><?= ucfirst($admin_role) ?></span>
             </div>
-            <div class="form-group">
-                <label>Caption (Optional)</label>
-                <input type="text" name="caption" placeholder="E.g. Sunday Worship 2025">
+            <button class="sidebar-logout" id="logoutBtn" title="Logout">
+                <i class='bx bx-log-out'></i>
+            </button>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="admin-main">
+    <!-- TOP BAR -->
+    <div class="admin-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <i class='bx bx-menu'></i>
+            </button>
+            <div class="topbar-breadcrumb" id="topbarBreadcrumb">
+                <i class='bx bx-home-alt'></i>
+                <span>Admin</span>
+                <i class='bx bx-chevron-right'></i>
+                <strong>Gallery</strong>
             </div>
-            <div class="form-group">
-                <label>Category</label>
-                <input type="text" name="category" placeholder="E.g. Events, Youth, Worship" value="General">
-            </div>
-            <button type="submit" class="btn-primary">Upload Securely</button>
-        </form>
+        </div>
+        <div class="topbar-right">
+            <a href="../" target="_blank" class="topbar-view-site">
+                <i class='bx bx-globe'></i>
+                <span>View Site</span>
+            </a>
+        </div>
     </div>
 
-    <div class="card">
-        <h2>Uploaded Photos (<?= count($images) ?>)</h2>
-        <?php if (empty($images)): ?>
-            <p style="color:#64748b;">No photos uploaded yet.</p>
-        <?php else: ?>
-            <div class="gallery-grid">
-                <?php foreach ($images as $img): ?>
-                <div class="gallery-item" id="img-<?= $img['id'] ?>">
-                    <img src="../assets/gallery/<?= htmlspecialchars($img['filename']) ?>" alt="">
-                    <button class="btn-delete" onclick="deleteImage(<?= $img['id'] ?>)" title="Delete"><i class='bx bx-trash'></i></button>
-                    <div class="gallery-info">
-                        <p><?= htmlspecialchars($img['caption'] ?: 'No caption') ?></p>
-                        <span class="badge"><?= htmlspecialchars($img['category']) ?></span>
-                    </div>
-                </div>
-                <?php endforeach; ?>
+    <!-- CONTENT -->
+    <div class="admin-content">
+        <div class="page-header">
+            <div class="page-header-left">
+                <h1>Gallery Management</h1>
+                <p>Upload and manage photos for the public gallery.</p>
+            </div>
+        </div>
+
+        <?php if ($error): ?>
+            <div style="background:#fee2e2; color:#991b1b; padding:1rem; border-radius:10px; margin-bottom:1.5rem; font-weight:500;">
+                <i class='bx bx-error-circle'></i> <?= htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
+        <?php if ($success): ?>
+            <div style="background:#dcfce7; color:#166534; padding:1rem; border-radius:10px; margin-bottom:1.5rem; font-weight:500;">
+                <i class='bx bx-check-circle'></i> <?= htmlspecialchars($success) ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="admin-card" style="margin-bottom:2rem;">
+            <h3><i class='bx bx-cloud-upload'></i> Upload New Photo</h3>
+            <form action="gallery.php" method="POST" enctype="multipart/form-data" style="margin-top:1.5rem; max-width:600px;">
+                <div class="form-group" style="margin-bottom:1.2rem;">
+                    <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.88rem; color:#475569;">Image File (JPG, PNG, WEBP — max 5MB) <span style="color:#ef4444;">*</span></label>
+                    <input type="file" name="image" accept="image/jpeg, image/png, image/webp" required class="form-control premium-input">
+                    <small style="color:#64748b;display:block;margin-top:0.3rem;">EXIF metadata (GPS, camera info) will be automatically stripped for security.</small>
+                </div>
+                
+                <div class="form-group" style="margin-bottom:1.2rem;">
+                    <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.88rem; color:#475569;">Caption (Optional)</label>
+                    <input type="text" name="caption" placeholder="E.g. Sunday Worship 2026" class="form-control premium-input">
+                </div>
+
+                <div class="form-group" style="margin-bottom:1.5rem;">
+                    <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.88rem; color:#475569;">Category <small style="color:#64748b;font-weight:400;">(determines where this photo is displayed)</small></label>
+                    <select name="category" class="form-control premium-input">
+                        <?php foreach ($gallery_categories as $cat): ?>
+                        <option value="<?= htmlspecialchars($cat) ?>" <?= $cat === 'General' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($cat) ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small style="color:#64748b;display:block;margin-top:.3rem;">Photos tagged with a ministry will also appear on that ministry's page.</small>
+                </div>
+
+                <button type="submit" class="premium-submit-btn" style="margin-top:0.5rem; max-width:200px;">
+                    <i class='bx bx-upload'></i> Upload Securely
+                </button>
+            </form>
+        </div>
+
+        <div class="admin-card">
+            <h3><i class='bx bx-images'></i> Uploaded Photos (<?= count($images) ?>)</h3>
+            
+            <?php if (empty($images)): ?>
+                <div style="text-align:center; padding:3rem; color:var(--text-muted);">
+                    <i class='bx bx-image-alt' style="font-size:3rem; display:block; margin-bottom:1rem;"></i>
+                    No photos uploaded yet.
+                </div>
+            <?php else: ?>
+                <div class="gallery-admin-grid">
+                    <?php foreach ($images as $img): ?>
+                    <div class="gallery-card" id="img-<?= $img['id'] ?>" style="background: #fff; border-radius:12px; overflow:hidden; border:1px solid #e2e8f0; display:flex; flex-direction:column; box-shadow: var(--shadow-xs);">
+                        <div class="gallery-thumb" style="aspect-ratio:1/1; border-radius:0; box-shadow:none;">
+                            <img src="../assets/gallery/<?= htmlspecialchars($img['filename']) ?>" alt="" loading="lazy">
+                            <div class="gallery-thumb-overlay">
+                                <button class="action-btn delete" style="background:#ef4444; color:#fff; border:none; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="deleteImage(<?= $img['id'] ?>)" title="Delete">
+                                    <i class='bx bx-trash' style="font-size:1.1rem;"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div style="padding:12px; flex-grow:1; display:flex; flex-direction:column; justify-content:space-between; gap:6px;">
+                            <strong style="display:block; font-size:0.8rem; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="<?= htmlspecialchars($img['caption'] ?: 'No caption') ?>">
+                                <?= htmlspecialchars($img['caption'] ?: 'No caption') ?>
+                            </strong>
+                            <div>
+                                <span class="badge" style="display:inline-block; font-size:0.68rem; padding:3px 8px; background:#f1f5f9; color:#475569; border-radius:4px; font-weight:500; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    <?= htmlspecialchars($img['category']) ?>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
+</main>
 
 <script>
+// Mobile Sidebar Toggle
+const sidebar  = document.getElementById('adminSidebar');
+const overlay  = document.getElementById('sidebarOverlay');
+const toggle   = document.getElementById('sidebarToggle');
+
+if (toggle && sidebar && overlay) {
+    toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
+    });
+}
+
+// Logout
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    Swal.fire({
+        title: 'Sign out?',
+        text: 'You will be logged out of the admin panel.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#f97316',
+        confirmButtonText: 'Yes, sign out',
+        cancelButtonText: 'Stay here',
+        borderRadius: '14px'
+    }).then(r => {
+        if (r.isConfirmed) window.location.href = 'logout.php';
+    });
+});
+
 function deleteImage(id) {
     Swal.fire({
         title: 'Are you sure?',

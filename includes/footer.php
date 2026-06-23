@@ -55,9 +55,8 @@
             <div class="footer-col">
                 <h4>Quick Links</h4>
                 <ul>
-                    <li><a href="index.php">Home</a></li>
+                    <li><a href="./">Home</a></li>
                     <li><a href="about-us.php">About Us</a></li>
-                    <li><a href="ministries.php">Ministries</a></li>
                     <li><a href="sermons.php">Sermons</a></li>
                     <li><a href="events.php">Events</a></li>
                 </ul>

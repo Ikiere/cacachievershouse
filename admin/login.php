@@ -126,7 +126,7 @@ unset($_SESSION['error']);
 
             </form>
 
-            <a href="../index.php" class="back-home">
+            <a href="../" class="back-home">
                 <i class='bx bx-arrow-back'></i> Back to website
             </a>
 
