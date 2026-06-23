@@ -85,14 +85,14 @@ $type_icons = [
                     $date_fmt = date('M j, Y', strtotime($ev['start_date']));
                     $end_fmt  = !empty($ev['end_date']) ? ' – ' . date('M j', strtotime($ev['end_date'])) : '';
                     $status   = $ev['status'] ?? 'upcoming';
-                    $has_img  = !empty($ev['image']) && file_exists(__DIR__ . '/' . $ev['image']);
+                    $has_img  = !empty($ev['image']);
                     $desc     = htmlspecialchars(mb_substr($ev['description'] ?? '', 0, 120));
                     if (mb_strlen($ev['description'] ?? '') > 120) $desc .= '…';
                 ?>
                 <article class="ev-card">
                     <?php if ($has_img): ?>
                     <a href="single-event.php?id=<?= $ev['id'] ?>" class="ev-card-img">
-                        <img src="<?= htmlspecialchars($ev['image']) ?>" alt="<?= htmlspecialchars($ev['title']) ?>" loading="lazy">
+                        <img src="<?= $base . htmlspecialchars($ev['image']) ?>" alt="<?= htmlspecialchars($ev['title']) ?>" loading="lazy">
                     </a>
                     <?php else: ?>
                     <a href="single-event.php?id=<?= $ev['id'] ?>" class="ev-card-img ev-card-img--icon">

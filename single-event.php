@@ -4,6 +4,7 @@
 // Premium $10,000 template layout
 // ============================================================
 require_once 'includes/config.php';
+$base = defined('BASE_URL') ? BASE_URL : '/';
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id <= 0) { header('Location: events.php'); exit; }
@@ -31,9 +32,9 @@ $time_str  = $st ? date('g:i A', $st) . ($et ? ' – ' . date('g:i A', $et) : ''
 $venue     = trim($ev['venue_name'] ?? '') ?: 'CAC Achievers House';
 
 // ── Hero image ────────────────────────────────────────────
-$hero_img  = 'assets/images/bg.jpg';
-if (!empty($ev['image']) && file_exists(__DIR__ . '/' . $ev['image'])) {
-    $hero_img = $ev['image'];
+$hero_img  = $base . 'assets/images/bg.jpg';
+if (!empty($ev['image'])) {
+    $hero_img = $base . $ev['image'];
 }
 
 // ── Other upcoming events for sidebar ─────────────────────
@@ -91,13 +92,13 @@ include 'includes/header.php';
 <!-- ══════════════════════════════════════════════════════════
      EVENT FLYER / IMAGE (Full size display)
 ════════════════════════════════════════════════════════════ -->
-<?php if (!empty($ev['image']) && file_exists(__DIR__ . '/' . $ev['image'])): ?>
+<?php if (!empty($ev['image'])): ?>
 <section class="sev-flyer-section">
     <div class="sev-flyer-inner">
         <p class="sev-flyer-label"><i class='bx bx-image-alt'></i> Event Flyer</p>
-        <div class="sev-flyer-img-wrap" onclick="openLightbox('<?= htmlspecialchars($ev['image']) ?>')" title="Click to zoom">
+        <div class="sev-flyer-img-wrap" onclick="openLightbox('<?= $base . htmlspecialchars($ev['image']) ?>')" title="Click to zoom">
             <img class="sev-flyer-img"
-                 src="<?= htmlspecialchars($ev['image']) ?>"
+                 src="<?= $base . htmlspecialchars($ev['image']) ?>"
                  alt="<?= htmlspecialchars($ev['title']) ?> — Event Flyer"
                  loading="lazy">
         </div>
