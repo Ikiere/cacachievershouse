@@ -15,8 +15,11 @@ if (!isset($_SESSION['admin_id'])) {
 $allowed_keys = [
     'site_name', 'site_tagline', 'hero_title', 'hero_subtitle',
     'contact_phone', 'contact_email', 'contact_address',
-    'primary_color', 'facebook_url', 'youtube_url',
-    'instagram_url', 'twitter_url', 'whatsapp_number', 'give_url'
+    'primary_color', 'facebook_url', 'youtube_url', 'map_embed_url',
+    'instagram_url', 'twitter_url', 'whatsapp_number', 'give_url',
+    // SMTP
+    'smtp_from_name', 'smtp_from_email', 'smtp_admin_email',
+    'smtp_host', 'smtp_port', 'smtp_encryption', 'smtp_username',
 ];
 
 $errors = [];
@@ -52,6 +55,20 @@ if (!empty($_FILES['logo']['tmp_name'])) {
         } else {
             $errors[] = 'Failed to save logo file.';
         }
+    }
+}
+
+// ── Handle SMTP password separately (preserve if blank) ───────
+if (isset($_POST['smtp_password'])) {
+    $pass = trim($_POST['smtp_password']);
+    if ($pass !== '') {
+        $stmt = $conn->prepare(
+            "INSERT INTO site_settings (setting_key, setting_value)
+             VALUES ('smtp_password', ?)
+             ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)"
+        );
+        $stmt->bind_param('s', $pass);
+        $stmt->execute();
     }
 }
 

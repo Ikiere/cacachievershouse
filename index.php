@@ -399,6 +399,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                         <?= htmlspecialchars($featured_event['venue_name']) ?>
                     </div>
                     <?php endif; ?>
+                    <a href="single-event.php?id=<?= $featured_event['id'] ?? '' ?>" class="btn btn-primary" style="margin-top:1.5rem; display:inline-flex; align-items:center; gap:8px;">
+                        View Event Details <i class='bx bx-right-arrow-alt'></i>
+                    </a>
                 </div>
             </div>
 
@@ -439,6 +442,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                             <i class="bx bx-map-pin"></i> <?= htmlspecialchars($ev['venue_name']) ?>
                         </span>
                         <?php endif; ?>
+                        <a href="single-event.php?id=<?= $ev['id'] ?? '' ?>" class="btn btn-secondary" style="margin-top:1.25rem; font-size:0.85rem; padding:8px 16px;">
+                            Details
+                        </a>
                     </div>
                 </div>
                 <?php endforeach; ?>

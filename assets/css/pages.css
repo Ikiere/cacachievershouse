@@ -290,8 +290,16 @@
    ========================================== */
 .events-page-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    justify-content: start;
     gap: 2rem;
+}
+
+/* Ensure single cards don't stretch beyond 400px wide */
+@media (min-width: 768px) {
+    .events-page-grid > .ev-card {
+        max-width: 380px;
+    }
 }
 
 .ev-card {
@@ -310,14 +318,15 @@
 }
 
 .ev-card-img {
-    height: 180px;
+    height: 250px;
     position: relative;
+    background: #0f172a;
 }
 
 .ev-card-img img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .ev-card-img--icon {

@@ -604,7 +604,8 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                     while ($msg = $messages_result->fetch_assoc()):
                         $initials = strtoupper(substr($msg['name'], 0, 1));
                 ?>
-                <div class="message-item <?= !$msg['is_read'] ? 'unread' : '' ?>">
+                <div class="message-item <?= !$msg['is_read'] ? 'unread' : '' ?>" id="msg-item-<?= $msg['id'] ?>" style="cursor: pointer;"
+                     onclick="viewMessage(<?= $msg['id'] ?>, '<?= addslashes(htmlspecialchars($msg['name'])) ?>', '<?= addslashes(htmlspecialchars($msg['email'])) ?>', '<?= addslashes(htmlspecialchars($msg['subject'] ?? '')) ?>', '<?= addslashes(htmlspecialchars(str_replace(["\r", "\n"], ["", "\\n"], $msg['message']))) ?>')">
                     <div class="msg-avatar"><?= $initials ?></div>
                     <div class="msg-body">
                         <strong><?= htmlspecialchars($msg['name']) ?></strong>
@@ -613,12 +614,6 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                     </div>
                     <div class="msg-meta">
                         <?= date('M j', strtotime($msg['created_at'])) ?>
-                        <div class="action-btns" style="margin-top:8px;">
-                            <button class="action-btn view" title="View message"
-                                    onclick="viewMessage('<?= addslashes(htmlspecialchars($msg['name'])) ?>','<?= addslashes(htmlspecialchars($msg['email'])) ?>','<?= addslashes(htmlspecialchars($msg['subject'] ?? '')) ?>','<?= addslashes(htmlspecialchars($msg['message'])) ?>')">
-                                <i class='bx bx-show'></i>
-                            </button>
-                        </div>
                     </div>
                 </div>
                 <?php endwhile; else: ?>
@@ -849,6 +844,9 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                     <button class="settings-nav-item" onclick="switchSettingsTab('social', this)">
                         <i class='bx bxl-facebook'></i> Social Media
                     </button>
+                    <button class="settings-nav-item" onclick="switchSettingsTab('smtp', this)">
+                        <i class='bx bx-mail-send'></i> Email / SMTP
+                    </button>
                 </div>
 
                 <!-- Settings forms -->
@@ -1008,6 +1006,61 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
                         </form>
                     </div>
 
+                    <!-- SMTP / Email Settings -->
+                    <div class="settings-panel" id="st-smtp">
+                        <form id="form-smtp">
+                        <div class="settings-section">
+                            <h3><i class='bx bx-mail-send'></i> Email / SMTP Settings</h3>
+                            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;">
+                                Configure SMTP to send real emails from the contact form. Your credentials are stored securely in the database.
+                            </p>
+                            <div class="form-group">
+                                <label>From Name <span>(displayed as sender name in emails)</span></label>
+                                <input name="smtp_from_name" class="form-control" value="<?= htmlspecialchars($get('smtp_from_name', 'CAC Achievers House')) ?>" placeholder="CAC Achievers House">
+                            </div>
+                            <div class="form-group">
+                                <label>From Email <span>(must match your SMTP account email)</span></label>
+                                <input type="email" name="smtp_from_email" class="form-control" value="<?= htmlspecialchars($get('smtp_from_email')) ?>" placeholder="info@yourdomain.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Admin Email <span>(where contact form submissions are sent)</span></label>
+                                <input type="email" name="smtp_admin_email" class="form-control" value="<?= htmlspecialchars($get('smtp_admin_email')) ?>" placeholder="admin@yourdomain.com">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>SMTP Host</label>
+                                    <input name="smtp_host" class="form-control" value="<?= htmlspecialchars($get('smtp_host', 'smtp.gmail.com')) ?>" placeholder="smtp.gmail.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>SMTP Port</label>
+                                    <input name="smtp_port" class="form-control" type="number" value="<?= htmlspecialchars($get('smtp_port', '587')) ?>" placeholder="587">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Encryption</label>
+                                <select name="smtp_encryption" class="form-control">
+                                    <option value="tls" <?= $get('smtp_encryption', 'tls') === 'tls' ? 'selected' : '' ?>>TLS (recommended for port 587)</option>
+                                    <option value="ssl" <?= $get('smtp_encryption') === 'ssl' ? 'selected' : '' ?>>SSL (port 465)</option>
+                                    <option value="none" <?= $get('smtp_encryption') === 'none' ? 'selected' : '' ?>>None (not recommended)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>SMTP Username</label>
+                                <input name="smtp_username" class="form-control" value="<?= htmlspecialchars($get('smtp_username')) ?>" placeholder="your@gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label>SMTP Password <span>(use an App Password for Gmail)</span></label>
+                                <input type="password" name="smtp_password" class="form-control" value="<?= htmlspecialchars($get('smtp_password')) ?>" placeholder="Leave blank to keep current password" autocomplete="new-password">
+                                <p class="form-hint">For Gmail: Enable 2FA → Google Account → Security → App Passwords → Generate password for "Mail".</p>
+                            </div>
+                        </div>
+                        <div class="settings-save-bar">
+                            <span class="save-status" id="save-status-smtp"><i class='bx bx-check-circle'></i> Saved!</span>
+                            <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> Save SMTP Settings</button>
+                        </div>
+                        </form>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -1120,7 +1173,7 @@ function saveSettings(formId, statusId) {
     .catch(() => Swal.fire('Error', 'Network error — please try again.', 'error'));
 }
 
-['general','hero','contact','social'].forEach(tab => {
+['general','hero','contact','social','smtp'].forEach(tab => {
     const form = document.getElementById('form-' + tab);
     if (form) {
         form.addEventListener('submit', e => {
@@ -1321,15 +1374,39 @@ document.getElementById('memberSearch')?.addEventListener('input', function () {
 // Removed old Event Modal logic
 
 // ── View Message ────────────────────────────────────────────
-function viewMessage(name, email, subject, message) {
+function viewMessage(id, name, email, subject, message) {
+    // Mark as read in UI
+    const item = document.getElementById('msg-item-' + id);
+    if (item && item.classList.contains('unread')) {
+        item.classList.remove('unread');
+        
+        // Update badge count
+        const badge = document.querySelector('.nav-item[data-panel="messages"] .nav-badge');
+        if (badge) {
+            let count = parseInt(badge.textContent) || 0;
+            if (count > 1) {
+                badge.textContent = count - 1;
+            } else {
+                badge.remove();
+            }
+        }
+
+        // Send AJAX to mark read in DB
+        fetch('mark_message_read.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        }).catch(err => console.error(err));
+    }
+
     Swal.fire({
         title: `Message from ${name}`,
         html: `
             <div style="text-align:left;font-size:14px;">
-                <p><strong>From:</strong> ${name} &lt;${email}&gt;</p>
+                <p><strong>From:</strong> ${name} &lt;<a href="mailto:${email}" style="color:#2563eb;">${email}</a>&gt;</p>
                 <p><strong>Subject:</strong> ${subject || '(none)'}</p>
                 <hr style="margin:12px 0;">
-                <p style="line-height:1.6;">${message}</p>
+                <div style="line-height:1.6; white-space:pre-wrap; color:#334155; background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">${message}</div>
             </div>
         `,
         confirmButtonColor: '#f97316',

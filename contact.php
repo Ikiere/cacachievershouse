@@ -14,6 +14,10 @@ include 'includes/header.php';
 
 $success = $error = '';
 
+// ── Load PHPMailer ────────────────────────────────────────────
+$phpmailer_path = __DIR__ . '/vendor/phpmailer/src/PHPMailer.php';
+$use_smtp = file_exists($phpmailer_path) && get_setting('smtp_host') && get_setting('smtp_username');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name    = trim(strip_tags($_POST['name']    ?? ''));
     $email   = trim($_POST['email']   ?? '');
@@ -25,12 +29,133 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Please enter a valid email address.';
     } else {
+        // 1. Always save to contacts table
+        $saved = false;
         $stmt = $conn->prepare("INSERT INTO contacts (name, email, subject, message) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param('ssss', $name, $email, $subject, $message);
-        if ($stmt->execute()) {
-            $success = 'Thank you! Your message has been received. We will get back to you within 24 hours.';
+        if ($stmt) {
+            $stmt->bind_param('ssss', $name, $email, $subject, $message);
+            $saved = $stmt->execute();
+        }
+
+        // 1b. If it's a Testimonial, also save to testimonials table (pending status)
+        if ($subject === 'Testimonial') {
+            $t_role = 'Church Member';
+            $t_stmt = $conn->prepare("INSERT INTO testimonials (name, role, quote, is_active) VALUES (?, ?, ?, 0)");
+            if ($t_stmt) {
+                $t_stmt->bind_param('sss', $name, $t_role, $message);
+                $t_stmt->execute();
+            }
+        }
+
+        // 2. Try to send email via SMTP if configured
+        $mail_sent = false;
+        $mail_error = '';
+        if ($use_smtp) {
+            try {
+                require_once __DIR__ . '/vendor/phpmailer/src/Exception.php';
+                require_once __DIR__ . '/vendor/phpmailer/src/PHPMailer.php';
+                require_once __DIR__ . '/vendor/phpmailer/src/SMTP.php';
+
+                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                $mail->isSMTP();
+                $mail->Host       = get_setting('smtp_host');
+                $mail->SMTPAuth   = true;
+                $mail->Username   = get_setting('smtp_username');
+                $mail->Password   = get_setting('smtp_password');
+                $enc              = get_setting('smtp_encryption', 'tls');
+                $mail->SMTPSecure = $enc === 'ssl' ? PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS : PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port       = intval(get_setting('smtp_port', '587'));
+
+                $from_email = get_setting('smtp_from_email', get_setting('contact_email', 'noreply@cacachievers.com'));
+                $from_name  = get_setting('smtp_from_name', get_setting('site_name', 'CAC Achievers House'));
+                $admin_to   = get_setting('smtp_admin_email', get_setting('contact_email', ''));
+
+                if (empty($admin_to)) {
+                    $admin_to = get_setting('smtp_username'); // Fallback to the authenticated SMTP user
+                }
+
+                $mail->setFrom($from_email, $from_name);
+                if (!empty($admin_to)) {
+                    $mail->addAddress($admin_to);
+                } else {
+                    throw new Exception('Admin receiving email is not configured in settings.');
+                }
+                $mail->addReplyTo($email, $name);
+
+                $mail->isHTML(true);
+                $mail->Subject = 'Contact Form: ' . ($subject ?: 'New Message') . ' — from ' . $name;
+                $mail->Body    = "
+                    <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'>
+                        <div style='background:#0f172a;padding:24px 32px;border-radius:8px 8px 0 0;'>
+                            <h2 style='color:#fff;margin:0;font-size:20px;'>New Contact Form Submission</h2>
+                            <p style='color:#94a3b8;margin:4px 0 0;font-size:14px;'>CAC Achievers House Website</p>
+                        </div>
+                        <div style='background:#f8fafc;padding:28px 32px;border:1px solid #e2e8f0;'>
+                            <table style='width:100%;border-collapse:collapse;font-size:15px;'>
+                                <tr><td style='color:#64748b;padding:8px 0;width:120px;'>Name</td><td style='font-weight:600;color:#0f172a;'>" . htmlspecialchars($name) . "</td></tr>
+                                <tr><td style='color:#64748b;padding:8px 0;'>Email</td><td><a href='mailto:" . htmlspecialchars($email) . "' style='color:#2563eb;'>" . htmlspecialchars($email) . "</a></td></tr>
+                                <tr><td style='color:#64748b;padding:8px 0;'>Subject</td><td style='color:#0f172a;'>" . htmlspecialchars($subject ?: 'Not specified') . "</td></tr>
+                            </table>
+                            <hr style='border:none;border-top:1px solid #e2e8f0;margin:16px 0;'>
+                            <p style='color:#64748b;font-size:13px;margin-bottom:8px;'>MESSAGE</p>
+                            <div style='background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:18px;color:#334155;line-height:1.7;'>" . nl2br(htmlspecialchars($message)) . "</div>
+                        </div>
+                        <div style='background:#f1f5f9;padding:14px 32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;border-top:none;text-align:center;'>
+                            <p style='color:#94a3b8;font-size:12px;margin:0;'>Sent from " . htmlspecialchars(get_setting('site_name', 'CAC Achievers House')) . " website contact form</p>
+                        </div>
+                    </div>";
+                $mail->AltBody = "Name: $name\nEmail: $email\nSubject: $subject\n\nMessage:\n$message";
+
+                $mail->send();
+                $mail_sent = true;
+
+                // 3. Send confirmation copy to the user
+                $mail->clearAddresses();
+                $mail->clearReplyTos();
+                
+                $mail->addAddress($email, $name);
+                $mail->addReplyTo($admin_to, $from_name);
+                $mail->Subject = 'We received your message: ' . ($subject ?: 'General Enquiry');
+                $mail->Body = "
+                    <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;'>
+                        <div style='background:#0047AB;padding:24px 32px;border-radius:8px 8px 0 0;'>
+                            <h2 style='color:#fff;margin:0;font-size:20px;'>Message Received</h2>
+                        </div>
+                        <div style='background:#f8fafc;padding:28px 32px;border:1px solid #e2e8f0;border-top:none;'>
+                            <p style='font-size:16px;color:#334155;'>Hello " . htmlspecialchars($name) . ",</p>
+                            <p style='font-size:15px;color:#475569;line-height:1.6;'>
+                                Thank you for contacting <strong>" . htmlspecialchars(get_setting('site_name', 'CAC Achievers House')) . "</strong>. 
+                                We have successfully received your message regarding <em>" . htmlspecialchars($subject ?: 'General Enquiry') . "</em>.
+                            </p>
+                            <p style='font-size:15px;color:#475569;line-height:1.6;'>
+                                Our team will review your message and get back to you within 24 hours.
+                            </p>
+                            <hr style='border:none;border-top:1px solid #e2e8f0;margin:24px 0;'>
+                            <p style='color:#64748b;font-size:13px;margin-bottom:8px;'>YOUR ORIGINAL MESSAGE:</p>
+                            <div style='background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;color:#64748b;font-size:14px;line-height:1.6;font-style:italic;'>
+                                " . nl2br(htmlspecialchars($message)) . "
+                            </div>
+                        </div>
+                    </div>";
+                $mail->AltBody = "Hello $name,\n\nThank you for contacting " . get_setting('site_name', 'CAC Achievers House') . ". We have successfully received your message and will get back to you within 24 hours.\n\nYour message:\n$message";
+                
+                // We ignore exceptions here so the main flow isn't interrupted if the auto-reply fails
+                try { $mail->send(); } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+                $mail_error = $e->getMessage();
+            }
+        }
+
+        if ($saved) {
+            if ($use_smtp && $mail_sent) {
+                $success = 'Thank you, ' . htmlspecialchars($name) . '! Your message has been sent. We will respond within 24 hours.';
+            } elseif ($use_smtp && !$mail_sent) {
+                $success = 'Your message was received, but the email notification failed (' . htmlspecialchars($mail_error) . '). We will still get back to you.';
+            } else {
+                $success = 'Thank you! Your message has been received. We will get back to you within 24 hours.';
+            }
         } else {
-            $error = 'Something went wrong. Please try again.';
+            $error = 'Something went wrong saving your message. Please try again.';
         }
     }
 }
@@ -108,6 +233,7 @@ $wa_num  = get_setting('whatsapp_number', '');
                         <option value="Ministry Membership" <?= (($_POST['subject'] ?? '') === 'Ministry Membership') ? 'selected' : '' ?>>Ministry Membership</option>
                         <option value="Counselling"         <?= (($_POST['subject'] ?? '') === 'Counselling')         ? 'selected' : '' ?>>Counselling</option>
                         <option value="Partnership"         <?= (($_POST['subject'] ?? '') === 'Partnership')         ? 'selected' : '' ?>>Partnership</option>
+                        <option value="Testimonial"         <?= (($_POST['subject'] ?? '') === 'Testimonial')         ? 'selected' : '' ?>>Submit a Testimonial</option>
                     </select>
                 </div>
 
@@ -131,7 +257,7 @@ $wa_num  = get_setting('whatsapp_number', '');
                     <div class="cd-icon"><i class="bx bx-map-pin"></i></div>
                     <div>
                         <strong>Address</strong>
-                        <p><?= nl2br(htmlspecialchars($address)) ?></p>
+                        <p style="text-transform:uppercase;letter-spacing:0.5px;"><?= nl2br(htmlspecialchars($address)) ?></p>
                     </div>
                 </div>
 
