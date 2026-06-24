@@ -275,7 +275,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 
             <div class="ministry-card reveal">
                 <div class="image-box">
-                    <img src="https://images.unsplash.com/photo-1515169067865-5387ec356754?w=600&q=80"
+                    <img src="assets/images/youth-church.jpg"
                          alt="Youth Ministry" loading="lazy">
                     <span class="age-badge">Ages 13–25</span>
                 </div>
@@ -284,17 +284,17 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
             </div>
 
             <div class="ministry-card primary reveal reveal-delay-1">
-                <div class="icon-box" style="background:rgba(255,255,255,0.08);font-size:3.5rem;color:rgba(255,255,255,0.8);">
-                    <i class="bx bx-child"></i>
+                <div class="image-box">
+                    <img src="<?= $base ?>assets/images/children-church.jpg" alt="Children's Church" loading="lazy">
+                    <span class="age-badge dark">Ages 3–12</span>
                 </div>
-                <span class="age-badge dark">Ages 3–12</span>
                 <h3>Children's Church</h3>
                 <p>Building strong foundations of faith in children through engaging Bible stories and a loving environment.</p>
             </div>
 
             <div class="ministry-card reveal reveal-delay-2">
                 <div class="image-box">
-                    <img src="assets/images/women-fellowship.jpg"
+                    <img src="<?= $base ?>assets/images/women-fellowship.jpg"
                          alt="Women's Fellowship" loading="lazy">
                     <span class="age-badge">All Ages</span>
                 </div>

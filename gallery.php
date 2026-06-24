@@ -74,7 +74,7 @@ if (!in_array($preselect_cat, $categories)) { $preselect_cat = 'All'; }
     <!-- Gallery Grid -->
     <div class="gallery-grid" id="galleryGrid">
         <?php foreach ($images as $i => $img): ?>
-        <?php $src = 'assets/gallery/' . htmlspecialchars($img['filename']); ?>
+        <?php $src = $base . 'assets/gallery/' . htmlspecialchars($img['filename']); ?>
         <div class="gallery-item reveal <?= $i % 4 === 0 ? '' : 'reveal-delay-' . ($i % 3 + 1) ?>"
              data-category="<?= htmlspecialchars($img['category']) ?>"
              data-src="<?= $src ?>"
@@ -149,11 +149,18 @@ const lightboxClose   = document.getElementById('lightboxClose');
 const lightboxPrev    = document.getElementById('lightboxPrev');
 const lightboxNext    = document.getElementById('lightboxNext');
 
-const items = Array.from(galleryItems);
+function getVisibleItems() {
+    return Array.from(document.querySelectorAll('.gallery-item')).filter(item => item.style.display !== 'none');
+}
 let currentLightbox = 0;
 
 function openLightbox(index) {
-    const item = items[index];
+    const visibleItems = getVisibleItems();
+    if (visibleItems.length === 0) return;
+    if (index < 0) index = visibleItems.length - 1;
+    if (index >= visibleItems.length) index = 0;
+
+    const item = visibleItems[index];
     lightboxImg.src = item.dataset.src;
     lightboxImg.alt = item.dataset.caption || '';
     lightboxCaption.textContent = item.dataset.caption || '';
@@ -161,8 +168,8 @@ function openLightbox(index) {
     lightbox.classList.add('active');
     lightboxBackdrop.classList.add('active');
     document.body.style.overflow = 'hidden';
-    lightboxPrev.style.display = items.length > 1 ? '' : 'none';
-    lightboxNext.style.display = items.length > 1 ? '' : 'none';
+    lightboxPrev.style.display = visibleItems.length > 1 ? '' : 'none';
+    lightboxNext.style.display = visibleItems.length > 1 ? '' : 'none';
 }
 
 function closeLightbox() {
@@ -172,18 +179,21 @@ function closeLightbox() {
 }
 
 function prevPhoto() {
-    currentLightbox = (currentLightbox - 1 + items.length) % items.length;
-    openLightbox(currentLightbox);
+    openLightbox(currentLightbox - 1);
 }
 
 function nextPhoto() {
-    currentLightbox = (currentLightbox + 1) % items.length;
-    openLightbox(currentLightbox);
+    openLightbox(currentLightbox + 1);
 }
 
-items.forEach((item, i) => {
-    item.addEventListener('click',  () => openLightbox(i));
-    item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openLightbox(i); });
+galleryItems.forEach((item) => {
+    const handleOpen = () => {
+        const visibleItems = getVisibleItems();
+        const idx = visibleItems.indexOf(item);
+        if (idx !== -1) openLightbox(idx);
+    };
+    item.addEventListener('click', handleOpen);
+    item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') handleOpen(); });
 });
 
 lightboxClose.addEventListener('click', closeLightbox);
@@ -197,6 +207,12 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft')  prevPhoto();
     if (e.key === 'ArrowRight') nextPhoto();
 });
+
+/* ── SCROLL REVEAL ── */
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 
 <?php include 'includes/footer.php'; ?>

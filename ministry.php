@@ -173,7 +173,7 @@ $m_color_dark = $m_color; // Could compute a darker shade; keep same for simplic
         <?php else: ?>
         <div class="ministry-gallery-grid" id="mgGallery">
             <?php foreach ($photos as $photo):
-                $src = 'assets/gallery/' . htmlspecialchars($photo['filename']);
+                $src = $base . 'assets/gallery/' . htmlspecialchars($photo['filename']);
             ?>
             <div class="ministry-gallery-item"
                  data-src="<?= $src ?>"
@@ -213,8 +213,8 @@ $m_color_dark = $m_color; // Could compute a darker shade; keep same for simplic
 
 <!-- ── LIGHTBOX ──────────────────────────────────────────────── -->
 <div class="lightbox" id="mgLightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" style="
-    display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.95);
-    align-items:center;justify-content:center;flex-direction:column;">
+    background:rgba(0,0,0,0.95);
+    flex-direction:column;">
     <button onclick="closeMgLightbox()" aria-label="Close" style="position:absolute;top:1.5rem;right:1.5rem;
         background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:2rem;width:48px;height:48px;
         border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;">
@@ -242,21 +242,25 @@ const mgImg = document.getElementById('mgLightboxImg');
 const mgCap = document.getElementById('mgLightboxCaption');
 
 function openMgLightbox(i) {
+    if (mgItems.length === 0) return;
+    if (i < 0) i = mgItems.length - 1;
+    if (i >= mgItems.length) i = 0;
+
     mgCurrent = i;
     mgImg.src = mgItems[i].dataset.src;
     mgImg.alt = mgItems[i].dataset.caption || '';
     mgCap.textContent = mgItems[i].dataset.caption || '';
-    mgLb.style.display = 'flex';
+    mgLb.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeMgLightbox() {
-    mgLb.style.display = 'none';
+    mgLb.classList.remove('active');
     document.body.style.overflow = '';
 }
 
-function mgPrev() { mgCurrent = (mgCurrent - 1 + mgItems.length) % mgItems.length; openMgLightbox(mgCurrent); }
-function mgNext() { mgCurrent = (mgCurrent + 1) % mgItems.length; openMgLightbox(mgCurrent); }
+function mgPrev() { openMgLightbox(mgCurrent - 1); }
+function mgNext() { openMgLightbox(mgCurrent + 1); }
 
 mgItems.forEach((item, i) => {
     item.addEventListener('click', () => openMgLightbox(i));
@@ -264,7 +268,7 @@ mgItems.forEach((item, i) => {
 });
 
 document.addEventListener('keydown', e => {
-    if (mgLb.style.display !== 'flex') return;
+    if (!mgLb.classList.contains('active')) return;
     if (e.key === 'Escape')     closeMgLightbox();
     if (e.key === 'ArrowLeft')  mgPrev();
     if (e.key === 'ArrowRight') mgNext();
