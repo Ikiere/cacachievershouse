@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
             imagedestroy($image);
 
             if ($saved) {
+                chmod($target_path, 0644);
                 $stmt = $conn->prepare("INSERT INTO gallery (filename, caption, category) VALUES (?, ?, ?)");
                 $stmt->bind_param("sss", $new_filename, $caption, $category);
                 if ($stmt->execute()) {

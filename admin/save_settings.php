@@ -44,6 +44,7 @@ if (!empty($_FILES['logo']['tmp_name'])) {
         }
 
         if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+            chmod($uploadPath, 0644);
             $stmt = $conn->prepare(
                 "INSERT INTO site_settings (setting_key, setting_value)
                  VALUES ('logo_path', ?)

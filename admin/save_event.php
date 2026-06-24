@@ -58,7 +58,7 @@ $image_path_sql = "";
 // Image Upload Logic
 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     $upload_dir = __DIR__ . '/../assets/images/events/';
-    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+    if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
 
     $file_tmp = $_FILES['image']['tmp_name'];
     $file_name = $_FILES['image']['name'];
@@ -74,6 +74,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     $target_file = $upload_dir . $new_file_name;
 
     if (move_uploaded_file($file_tmp, $target_file)) {
+        chmod($target_file, 0644);
         // Delete old image if updating
         if ($id > 0) {
             $oldRes = $conn->query("SELECT image FROM events WHERE id = $id");

@@ -92,7 +92,7 @@ $type_icons = [
                 <article class="ev-card">
                     <?php if ($has_img): ?>
                     <a href="single-event.php?id=<?= $ev['id'] ?>" class="ev-card-img">
-                        <img src="<?= $base . htmlspecialchars($ev['image']) ?>" alt="<?= htmlspecialchars($ev['title']) ?>" loading="lazy">
+                        <img src="<?= $base . htmlspecialchars(ltrim($ev['image'], '/')) ?>" alt="<?= htmlspecialchars($ev['title']) ?>" loading="lazy">
                     </a>
                     <?php else: ?>
                     <a href="single-event.php?id=<?= $ev['id'] ?>" class="ev-card-img ev-card-img--icon">

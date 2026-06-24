@@ -34,7 +34,7 @@ $venue     = trim($ev['venue_name'] ?? '') ?: 'CAC Achievers House';
 // ── Hero image ────────────────────────────────────────────
 $hero_img  = $base . 'assets/images/bg.jpg';
 if (!empty($ev['image'])) {
-    $hero_img = $base . $ev['image'];
+    $hero_img = $base . ltrim($ev['image'], '/');
 }
 
 // ── Other upcoming events for sidebar ─────────────────────
@@ -96,9 +96,9 @@ include 'includes/header.php';
 <section class="sev-flyer-section">
     <div class="sev-flyer-inner">
         <p class="sev-flyer-label"><i class='bx bx-image-alt'></i> Event Flyer</p>
-        <div class="sev-flyer-img-wrap" onclick="openLightbox('<?= $base . htmlspecialchars($ev['image']) ?>')" title="Click to zoom">
+        <div class="sev-flyer-img-wrap" onclick="openLightbox('<?= $base . htmlspecialchars(ltrim($ev['image'], '/')) ?>')" title="Click to zoom">
             <img class="sev-flyer-img"
-                 src="<?= $base . htmlspecialchars($ev['image']) ?>"
+                 src="<?= $base . htmlspecialchars(ltrim($ev['image'], '/')) ?>"
                  alt="<?= htmlspecialchars($ev['title']) ?> — Event Flyer"
                  loading="lazy">
         </div>

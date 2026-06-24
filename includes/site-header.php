@@ -38,7 +38,7 @@ $ministry_active = ($current === 'ministry.php');
         <!-- Logo (dynamic from Site Settings) -->
         <div class="logo">
             <a href="<?= $current === 'index.php' ? '#home' : $base ?>" class="logo-link">
-                <img src="<?= $base . htmlspecialchars(get_setting('logo_path', 'assets/logo/cac-logo.png')) ?>"
+                <img src="<?= $base . htmlspecialchars(ltrim(get_setting('logo_path', 'assets/logo/cac-logo.png'), '/')) ?>"
                      alt="<?= htmlspecialchars(get_setting('site_name', 'CAC Achievers House')) ?> Logo"
                      class="site-logo-img"
                      onerror="this.style.display='none'">

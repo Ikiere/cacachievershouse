@@ -76,6 +76,7 @@ if (!empty($_FILES['audio_file']['name'])) {
     $dir  = '../assets/uploads/sermons/';
     if (!is_dir($dir)) mkdir($dir, 0755, true);
     if (move_uploaded_file($_FILES['audio_file']['tmp_name'], $dir . $name)) {
+        chmod($dir . $name, 0644);
         $audio_file = 'assets/uploads/sermons/' . $name;
     }
 }
@@ -98,6 +99,7 @@ if (!empty($_FILES['thumbnail']['name'])) {
     $dir  = '../assets/uploads/sermons/';
     if (!is_dir($dir)) mkdir($dir, 0755, true);
     if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $dir . $name)) {
+        chmod($dir . $name, 0644);
         $thumbnail = 'assets/uploads/sermons/' . $name;
     }
 }
