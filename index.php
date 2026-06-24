@@ -251,7 +251,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 
             <div class="ministry-card reveal">
                 <div class="image-box">
-                    <img src="assets/images/youth-church.jpg"
+                    <img src="<?= $base . ltrim('assets/images/youth-church.jpg', '/') ?>"
                          alt="Youth Ministry" loading="lazy">
                     <span class="age-badge">Ages 13–25</span>
                 </div>
@@ -261,7 +261,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 
             <div class="ministry-card primary reveal reveal-delay-1">
                 <div class="image-box">
-                    <img src="<?= $base ?>assets/images/children-church.jpg" alt="Children's Church" loading="lazy">
+                    <img src="<?= $base . ltrim('assets/images/children-church.jpg', '/') ?>" alt="Children's Church" loading="lazy">
                     <span class="age-badge dark">Ages 3–12</span>
                 </div>
                 <h3>Children's Church</h3>
@@ -270,7 +270,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 
             <div class="ministry-card reveal reveal-delay-2">
                 <div class="image-box">
-                    <img src="<?= $base ?>assets/images/women-fellowship.jpg"
+                    <img src="<?= $base . ltrim('assets/images/women-fellowship.jpg', '/') ?>"
                          alt="Women's Fellowship" loading="lazy">
                     <span class="age-badge">All Ages</span>
                 </div>

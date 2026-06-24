@@ -48,7 +48,7 @@ $type_icons = [
 <?php include 'includes/site-header.php'; ?>
 
 <!-- ── PAGE HERO ── -->
-<section class="page-hero" style="background-image:url('assets/images/bg.jpg');">
+<section class="page-hero" style="background-image:url('<?= $base . ltrim('assets/images/bg.jpg', '/') ?>');">
     <div class="page-hero-overlay"></div>
     <div class="page-hero-content">
         <span class="hero-badge"><i class="bx bx-calendar-event"></i> WHAT'S HAPPENING</span>

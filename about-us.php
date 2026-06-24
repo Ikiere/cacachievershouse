@@ -16,7 +16,7 @@ include 'includes/header.php';
 <?php include 'includes/site-header.php'; ?>
 
     <!-- ── PAGE HERO ── -->
-    <section class="page-hero" style="background-image:url('assets/images/bg.jpg');">
+    <section class="page-hero" style="background-image:url('<?= $base . ltrim('assets/images/bg.jpg', '/') ?>');">
         <div class="page-hero-overlay"></div>
         <div class="page-hero-content reveal">
             <span class="hero-badge"><i class="bx bx-info-circle"></i> OUR STORY</span>
@@ -91,13 +91,13 @@ include 'includes/header.php';
                 </div>
                 <div class="about-service-card">
                     <div class="about-service-icon"><i class='bx bx-heart'></i></div>
-                    <h3>Monday Achievers Pray</h3>
+                    <h3>Monday-Achievers Pray</h3>
                     <span class="about-service-time">8:30pm – 9:30pm</span>
                     <p>Corporate prayer and intercession for personal and communal breakthrough.</p>
                 </div>
                 <div class="about-service-card">
                     <div class="about-service-icon"><i class='bx bx-book-open'></i></div>
-                    <h3>Wednesday Bible Study</h3>
+                    <h3>Wednesday-Bible Study</h3>
                     <span class="about-service-time">7:00pm – 8:10pm</span>
                     <p>Dive deeper into God's Word with interactive study sessions and transformative discussions.</p>
                 </div>

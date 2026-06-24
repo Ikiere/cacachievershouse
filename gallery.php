@@ -32,7 +32,7 @@ if (!in_array($preselect_cat, $categories)) { $preselect_cat = 'All'; }
 <?php include 'includes/site-header.php'; ?>
 
 <!-- ── PAGE HERO ── -->
-<section class="page-hero" style="background-image:url('assets/images/bg.jpg');">
+<section class="page-hero" style="background-image:url('<?= $base . ltrim('assets/images/bg.jpg', '/') ?>');">
     <div class="page-hero-overlay"></div>
     <div class="page-hero-content">
         <span class="hero-badge"><i class="bx bx-images"></i> OUR MOMENTS</span>

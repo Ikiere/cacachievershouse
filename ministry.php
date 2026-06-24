@@ -73,7 +73,7 @@ $m_color_dark = $m_color; // Could compute a darker shade; keep same for simplic
 <!-- ── MINISTRY HERO ──────────────────────────────────────────── -->
 <section class="ministry-hero">
     <div class="ministry-hero-bg"
-         style="background-image: url('<?= !empty($ministry['hero_bg']) ? htmlspecialchars($ministry['hero_bg']) : "assets/images/bg.jpg" ?>');">
+         style="background-image: url('<?= $base . ltrim(!empty($ministry['hero_bg']) ? htmlspecialchars($ministry['hero_bg']) : "assets/images/bg.jpg", '/') ?>');">
     </div>
     <div class="ministry-hero-overlay"
          style="background: linear-gradient(180deg, rgba(10,15,40,0.88) 0%, <?= $m_color ?>33 40%, rgba(6,10,28,0.92) 100%);">

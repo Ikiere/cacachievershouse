@@ -67,7 +67,7 @@ include 'includes/header.php';
 <?php include 'includes/site-header.php'; ?>
 
 <!-- PAGE HERO -->
-<section class="page-hero" style="background-image:url('assets/images/bg.jpg');">
+<section class="page-hero" style="background-image:url('<?= $base . ltrim('assets/images/bg.jpg', '/') ?>');">
     <div class="page-hero-overlay"></div>
     <div class="page-hero-content">
         <span class="hero-eyebrow"><i class="bx bx-headphone"></i> AUDIO & VIDEO SERMONS</span>
@@ -132,7 +132,7 @@ include 'includes/header.php';
 
                 <div class="sermon-thumbnail">
                     <?php if ($s['thumbnail']): ?>
-                    <img src="<?= htmlspecialchars($s['thumbnail']) ?>" alt="<?= htmlspecialchars($s['title']) ?>">
+                    <img src="<?= $base . htmlspecialchars(ltrim($s['thumbnail'], '/')) ?>" alt="<?= htmlspecialchars($s['title']) ?>">
                     <?php else: ?>
                     <div class="sermon-thumbnail-icon"><i class="bx bx-microphone"></i></div>
                     <?php endif; ?>
@@ -155,7 +155,7 @@ include 'includes/header.php';
 
                     <?php if ($s['audio_file']): ?>
                     <audio class="sermon-audio" controls preload="none"
-                           src="<?= htmlspecialchars($s['audio_file']) ?>">
+                           src="<?= $base . htmlspecialchars(ltrim($s['audio_file'], '/')) ?>">
                         Your browser does not support audio.
                     </audio>
                     <?php endif; ?>
