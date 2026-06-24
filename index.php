@@ -96,7 +96,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                 <div class="icon-box-1">
                     <i class="bx bx-heart"></i>
                 </div>
-                <h3>Monday Achievers Pray</h3>
+                <h3>Monday-Achievers Pray</h3>
                 <span class="time accent">8:30 PM – 9:30 PM</span>
                 <p>Corporate prayer and intercession for personal and communal breakthrough with the body of Christ.</p>
             </div>
