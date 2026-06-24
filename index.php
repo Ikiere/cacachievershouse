@@ -335,7 +335,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
             <div class="event-featured reveal">
                 <?php
                 $feat_img = !empty($featured_event['image'])
-                    ? $base . 'assets/images/events/' . htmlspecialchars($featured_event['image'])
+                    ? $base . htmlspecialchars($featured_event['image'])
                     : '';
                 ?>
                 <?php if ($feat_img): ?>
@@ -387,7 +387,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                 <div class="event-card <?= $style ?> reveal<?= $delay ?>">
                     <?php
                     $card_img = !empty($ev['image'])
-                        ? $base . 'assets/images/events/' . htmlspecialchars($ev['image'])
+                        ? $base . htmlspecialchars($ev['image'])
                         : '';
                     ?>
                     <?php if ($card_img): ?>
