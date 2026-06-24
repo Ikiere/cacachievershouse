@@ -296,7 +296,7 @@ $wa_num  = get_setting('whatsapp_number', '');
                         <span class="st-time">10:00 AM – 12:00 PM</span>
                     </div>
                     <div class="st-item">
-                        <span class="st-day"><i class="bx bx-heart"></i> Monday Achievers Pray</span>
+                        <span class="st-day"><i class="bx bx-heart"></i> Monday-Achievers Pray</span>
                         <span class="st-time">8:30 PM – 9:30 PM</span>
                     </div>
                     <div class="st-item">
