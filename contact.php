@@ -289,19 +289,19 @@ $wa_num  = get_setting('whatsapp_number', '');
             </div>
 
             <div class="contact-info-card">
-                <h3>Service Times</h3>
+                <h3>Times of Service</h3>
                 <div class="service-time-list">
                     <div class="st-item">
-                        <span class="st-day"><i class="bx bx-sun"></i> Sunday</span>
-                        <span class="st-time">8:00 AM – 11:00 AM</span>
+                        <span class="st-day"><i class="bx bx-sun"></i> Sunday Worship</span>
+                        <span class="st-time">10:00 AM – 12:00 PM</span>
                     </div>
                     <div class="st-item">
-                        <span class="st-day"><i class="bx bx-book-open"></i> Wednesday</span>
-                        <span class="st-time">6:00 PM – 8:00 PM</span>
+                        <span class="st-day"><i class="bx bx-heart"></i> Monday Achievers Pray</span>
+                        <span class="st-time">8:30 PM – 9:30 PM</span>
                     </div>
                     <div class="st-item">
-                        <span class="st-day"><i class="bx bx-heart"></i> Friday</span>
-                        <span class="st-time">7:00 PM – 9:00 PM</span>
+                        <span class="st-day"><i class="bx bx-book-open"></i> Wednesday Bible Study</span>
+                        <span class="st-time">7:00 PM – 8:10 PM</span>
                     </div>
                 </div>
             </div>
@@ -352,7 +352,7 @@ $wa_num  = get_setting('whatsapp_number', '');
         {
             "@type": "Question",
             "name": "What time is Sunday service?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Sunday service holds from 8:00 AM to 11:00 AM." }
+            "acceptedAnswer": { "@type": "Answer", "text": "Sunday Worship holds from 10:00 AM to 12:00 PM. Monday Achievers Pray is 8:30 PM to 9:30 PM. Wednesday Bible Study is 7:00 PM to 8:10 PM." }
         },
         {
             "@type": "Question",

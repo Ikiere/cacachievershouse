@@ -917,68 +917,151 @@ nav ul li a.active { color: #fff; }
     gap: 1.5rem;
 }
 
+/* ── Sermon Card — Premium Glassmorphism ── */
 .sermon-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: var(--r-lg);
-    padding: 1.8rem;
+    background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
-    transition: background var(--t-med), transform var(--t-med), border-color var(--t-med);
+    gap: 1rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
+
+.sermon-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-gold), var(--primary), var(--accent-gold));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.sermon-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(0,71,171,0.15) 0%, transparent 70%);
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    opacity: 0;
+}
+
 .sermon-card:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(0,71,171,0.5);
-    transform: translateY(-4px);
+    background: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+    border-color: rgba(200,168,75,0.3);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(0,71,171,0.1);
+}
+
+.sermon-card:hover::before { opacity: 1; }
+.sermon-card:hover::after { opacity: 1; }
+
+.sermon-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .sermon-play {
-    width: 52px; height: 52px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     background: var(--grad-primary);
-    display: grid; place-items: center;
+    display: grid;
+    place-items: center;
     color: #fff;
     font-size: 1.2rem;
-    box-shadow: var(--shadow-blue);
-    transition: transform var(--t-fast), box-shadow var(--t-fast);
+    box-shadow: 0 4px 20px rgba(0,71,171,0.4);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
+    position: relative;
 }
-.sermon-card:hover .sermon-play { transform: scale(1.1); box-shadow: var(--shadow-blue-lg); }
+
+.sermon-play::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,71,171,0.3);
+    opacity: 0;
+    transition: all 0.35s ease;
+}
+
+.sermon-card:hover .sermon-play {
+    transform: scale(1.12);
+    box-shadow: 0 6px 30px rgba(0,71,171,0.5);
+}
+
+.sermon-card:hover .sermon-play::after { opacity: 1; }
 
 .sermon-series {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.8px;
     text-transform: uppercase;
     color: var(--accent-gold);
+    padding: 0.3rem 0.8rem;
+    background: rgba(200,168,75,0.1);
+    border: 1px solid rgba(200,168,75,0.2);
+    border-radius: 20px;
+    display: inline-block;
 }
 
 .sermon-title {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #fff;
-    line-height: 1.35;
+    line-height: 1.4;
     font-family: var(--font-display);
+    letter-spacing: -0.01em;
 }
 
 .sermon-meta {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 1rem;
     font-size: 0.8rem;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.45);
     flex-wrap: wrap;
+    padding-top: 0.25rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
 }
 
-.sermon-meta i { color: rgba(255,255,255,0.35); }
+.sermon-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.sermon-meta i { color: rgba(200,168,75,0.5); font-size: 0.9rem; }
 
 .sermon-scripture {
-    font-size: 0.82rem;
-    color: rgba(200,168,75,0.8);
+    font-size: 0.8rem;
+    color: rgba(200,168,75,0.85);
     font-style: italic;
     margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sermon-scripture::before {
+    content: '📖';
+    font-style: normal;
+    font-size: 0.85rem;
 }
 
 .sermons-cta {
@@ -987,6 +1070,102 @@ nav ul li a.active { color: #fff; }
     max-width: var(--max-w);
     margin-left: auto;
     margin-right: auto;
+}
+
+/* ── Sermons Empty State — Premium ── */
+.sermons-empty {
+    grid-column: 1 / -1;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: rgba(255,255,255,0.55);
+    background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.sermons-empty::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(200,168,75,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.sermons-empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(200,168,75,0.12) 0%, rgba(0,71,171,0.1) 100%);
+    border: 1px solid rgba(200,168,75,0.2);
+    display: grid;
+    place-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.sermons-empty-icon i {
+    font-size: 2rem;
+    color: var(--accent-gold);
+    animation: emptyPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes emptyPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+.sermons-empty h3 {
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+.sermons-empty p {
+    font-size: 0.95rem;
+    max-width: 440px;
+    margin: 0 auto;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+}
+
+.sermons-empty-cta {
+    margin-top: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.6rem;
+    border-radius: 50px;
+    background: rgba(200,168,75,0.1);
+    border: 1px solid rgba(200,168,75,0.25);
+    color: var(--accent-gold-light);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.sermons-empty-cta:hover {
+    background: rgba(200,168,75,0.2);
+    border-color: rgba(200,168,75,0.4);
+    transform: translateY(-2px);
+    color: var(--accent-gold);
 }
 
 /* ============================================================

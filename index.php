@@ -185,9 +185,12 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 
         <div class="sermons-grid" style="max-width:var(--max-w);margin:0 auto 3rem;">
             <?php if ($sermons_result && $sermons_result->num_rows > 0):
-                while ($s = $sermons_result->fetch_assoc()): ?>
-            <div class="sermon-card reveal">
-                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.4rem;">
+                $sermon_idx = 0;
+                while ($s = $sermons_result->fetch_assoc()):
+                    $delay_class = $sermon_idx > 0 ? ' reveal-delay-' . min($sermon_idx, 3) : '';
+            ?>
+            <a href="sermons.php" class="sermon-card reveal<?= $delay_class ?>" style="text-decoration:none;">
+                <div class="sermon-card-header">
                     <div class="sermon-play">
                         <i class="bx bx-play"></i>
                     </div>
@@ -198,47 +201,20 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                     <span><i class="bx bx-user"></i> <?= htmlspecialchars($s['speaker']) ?></span>
                     <span><i class="bx bx-calendar"></i> <?= date('M j, Y', strtotime($s['sermon_date'])) ?></span>
                 </div>
-                <?php if ($s['scripture']): ?>
+                <?php if (!empty($s['scripture'])): ?>
                 <div class="sermon-scripture"><?= htmlspecialchars($s['scripture']) ?></div>
                 <?php endif; ?>
-            </div>
-            <?php endwhile; else: ?>
-            <!-- Placeholder sermon cards when DB is empty -->
-            <div class="sermon-card reveal">
-                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.4rem;">
-                    <div class="sermon-play"><i class="bx bx-play"></i></div>
-                    <span class="sermon-series">Faith Series</span>
+            </a>
+            <?php $sermon_idx++; endwhile; else: ?>
+            <div class="sermons-empty reveal">
+                <div class="sermons-empty-icon">
+                    <i class="bx bx-headphone"></i>
                 </div>
-                <h3 class="sermon-title">Walking in the Fullness of God's Promise</h3>
-                <div class="sermon-meta">
-                    <span><i class="bx bx-user"></i> Senior Pastor</span>
-                    <span><i class="bx bx-calendar"></i> Jun 1, 2026</span>
-                </div>
-                <div class="sermon-scripture">Jeremiah 29:11</div>
-            </div>
-            <div class="sermon-card reveal reveal-delay-1">
-                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.4rem;">
-                    <div class="sermon-play"><i class="bx bx-play"></i></div>
-                    <span class="sermon-series">Destiny Series</span>
-                </div>
-                <h3 class="sermon-title">Purpose Is Not An Accident — It's a Divine Assignment</h3>
-                <div class="sermon-meta">
-                    <span><i class="bx bx-user"></i> Senior Pastor</span>
-                    <span><i class="bx bx-calendar"></i> May 25, 2026</span>
-                </div>
-                <div class="sermon-scripture">Romans 8:28</div>
-            </div>
-            <div class="sermon-card reveal reveal-delay-2">
-                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.4rem;">
-                    <div class="sermon-play"><i class="bx bx-play"></i></div>
-                    <span class="sermon-series">Prayer Series</span>
-                </div>
-                <h3 class="sermon-title">Praying With Authority — The Power of a Believer's Voice</h3>
-                <div class="sermon-meta">
-                    <span><i class="bx bx-user"></i> Senior Pastor</span>
-                    <span><i class="bx bx-calendar"></i> May 18, 2026</span>
-                </div>
-                <div class="sermon-scripture">Matthew 21:22</div>
+                <h3>No Sermons Uploaded Yet</h3>
+                <p>We're currently updating our sermon library. Please check back soon or join us for our live services every Sunday!</p>
+                <a href="contact.php" class="sermons-empty-cta">
+                    <i class="bx bx-calendar"></i> View Service Times
+                </a>
             </div>
             <?php endif; ?>
         </div>
@@ -358,12 +334,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
             <!-- Featured Event -->
             <div class="event-featured reveal">
                 <?php
-                $feat_img = '';
-                if (!empty($featured_event['image']) && file_exists(__DIR__ . '/assets/events/' . $featured_event['image'])) {
-                    $feat_img = 'assets/events/' . htmlspecialchars($featured_event['image']);
-                } elseif (!empty($featured_event['image'])) {
-                    $feat_img = htmlspecialchars($featured_event['image']);
-                }
+                $feat_img = !empty($featured_event['image'])
+                    ? $base . 'assets/images/events/' . htmlspecialchars($featured_event['image'])
+                    : '';
                 ?>
                 <?php if ($feat_img): ?>
                 <img src="<?= $feat_img ?>" alt="<?= htmlspecialchars($featured_event['title']) ?>" loading="lazy">
@@ -413,12 +386,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                 ?>
                 <div class="event-card <?= $style ?> reveal<?= $delay ?>">
                     <?php
-                    $card_img = '';
-                    if (!empty($ev['image'])) {
-                        $card_img = file_exists(__DIR__ . '/assets/events/' . $ev['image'])
-                            ? 'assets/events/' . htmlspecialchars($ev['image'])
-                            : htmlspecialchars($ev['image']);
-                    }
+                    $card_img = !empty($ev['image'])
+                        ? $base . 'assets/images/events/' . htmlspecialchars($ev['image'])
+                        : '';
                     ?>
                     <?php if ($card_img): ?>
                     <div class="event-card-thumb">
