@@ -58,8 +58,9 @@ $type_icons = [
 </section>
 
 <!-- ── EVENTS GRID ── -->
-<section class="bg-dark-events" style="padding: 5rem 0;" aria-labelledby="events-page-heading">
-    <div class="page-container">
+<section class="bg-dark-events bg-grid-pattern-dark" style="padding: 5rem 0; position: relative; overflow: hidden;" aria-labelledby="events-page-heading">
+    <?php render_motion_shapes(['red' => 'top: 10%; right: -5%; opacity: 0.1;', 'gold' => 'bottom: 15%; left: -5%; opacity: 0.1;', 'blue' => 'top: 40%; left: 25%; opacity: 0.06;']); ?>
+    <div class="page-container" style="position: relative; z-index: 1;">
 
         <div class="section-header text-center" style="color:#fff; margin-bottom: 3rem;">
             <span class="section-badge" style="background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3);color:#fbbf24;">

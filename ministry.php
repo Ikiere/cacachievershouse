@@ -100,8 +100,9 @@ $m_color_dark = $m_color; // Could compute a darker shade; keep same for simplic
 </section>
 
 <!-- ── ABOUT SECTION ─────────────────────────────────────────── -->
-<section class="ministry-about">
-    <div class="ministry-about-inner">
+<section class="ministry-about bg-grid-pattern" style="position: relative; overflow: hidden;">
+    <?php render_motion_shapes(['red' => 'top: 10%; right: -5%; opacity: 0.12;', 'gold' => 'bottom: 15%; left: -5%; opacity: 0.12;', 'blue' => 'top: 40%; left: 30%; opacity: 0.08;']); ?>
+    <div class="ministry-about-inner" style="position: relative; z-index: 1;">
 
         <!-- Description -->
         <div class="ministry-about-text">

@@ -98,4 +98,18 @@ if (!function_exists('get_setting')) {
         return $_settings_cache[$key] ?? $default;
     }
 }
+
+if (!function_exists('render_motion_shapes')) {
+    function render_motion_shapes(array $custom_styles = []) {
+        $red  = $custom_styles['red']  ?? 'top: 10%; left: -5%; opacity: 0.12;';
+        $gold = $custom_styles['gold'] ?? 'bottom: 15%; right: -5%; opacity: 0.12;';
+        $blue = $custom_styles['blue'] ?? 'top: 40%; right: 25%; opacity: 0.08;';
+        
+        echo "\n    <!-- Motion Graphics Background Shapes -->\n";
+        echo '    <div class="motion-shape shape-red" style="' . htmlspecialchars($red) . '"></div>' . "\n";
+        echo '    <div class="motion-shape shape-gold" style="' . htmlspecialchars($gold) . '"></div>' . "\n";
+        echo '    <div class="motion-shape shape-blue" style="' . htmlspecialchars($blue) . '"></div>' . "\n";
+    }
+}
 ?>
+

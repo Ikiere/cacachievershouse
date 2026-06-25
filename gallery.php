@@ -42,8 +42,9 @@ if (!in_array($preselect_cat, $categories)) { $preselect_cat = 'All'; }
 </section>
 
 <!-- ── GALLERY ── -->
-<section class="page-section bg-page" aria-labelledby="gallery-heading">
-<div class="page-container">
+<section class="page-section bg-page bg-grid-pattern" style="position: relative; overflow: hidden;" aria-labelledby="gallery-heading">
+    <?php render_motion_shapes(['red' => 'top: 10%; right: -5%; opacity: 0.12;', 'gold' => 'bottom: 15%; left: -5%; opacity: 0.12;', 'blue' => 'top: 40%; left: 30%; opacity: 0.08;']); ?>
+    <div class="page-container" style="position: relative; z-index: 1;">
 
     <div class="section-header text-center">
         <span class="section-badge"><i class="bx bx-camera"></i> MOMENTS & MEMORIES</span>

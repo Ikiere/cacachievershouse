@@ -108,8 +108,9 @@ include 'includes/header.php';
 <!-- ══════════════════════════════════════════════════════════
      CONTENT AREA
 ════════════════════════════════════════════════════════════ -->
-<section class="sev-content-section">
-    <div class="sev-content-container">
+<section class="sev-content-section bg-grid-pattern" style="position: relative; overflow: hidden;">
+    <?php render_motion_shapes(['red' => 'top: 10%; right: -5%; opacity: 0.12;', 'gold' => 'bottom: 15%; left: -5%; opacity: 0.12;', 'blue' => 'top: 40%; left: 30%; opacity: 0.08;']); ?>
+    <div class="sev-content-container" style="position: relative; z-index: 1;">
 
         <!-- ── LEFT COLUMN: DESCRIPTION ── -->
         <main class="sev-main-col">

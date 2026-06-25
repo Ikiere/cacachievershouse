@@ -118,8 +118,9 @@ include 'includes/header.php';
 </section>
 
 <!-- SERMONS GRID -->
-<section class="page-section bg-page">
-    <div class="page-container">
+<section class="page-section bg-page bg-grid-pattern" style="position: relative; overflow: hidden;">
+    <?php render_motion_shapes(['red' => 'top: 10%; left: -5%; opacity: 0.12;', 'gold' => 'bottom: 15%; right: -5%; opacity: 0.12;', 'blue' => 'top: 40%; right: 25%; opacity: 0.08;']); ?>
+    <div class="page-container" style="position: relative; z-index: 1;">
 
         <?php if ($total > 0): ?>
         <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:2rem;">

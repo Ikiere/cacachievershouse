@@ -179,14 +179,16 @@ $wa_num  = get_setting('whatsapp_number', '');
     <div class="page-hero-overlay"></div>
     <div class="page-hero-content">
         <span class="hero-badge"><i class="bx bx-envelope"></i> GET IN TOUCH</span>
-        <h1>Contact <span class="highlight">Us</span></h1>
+        <h1>Contact <span class="highlight text-red">Us</span></h1>
         <p>We would love to hear from you. Reach out, ask questions, or plan your first visit.</p>
     </div>
 </section>
 
 <!-- ── CONTACT SECTION ── -->
-<section class="page-section bg-white" aria-labelledby="contact-page-heading">
-<div class="page-container">
+<section class="page-section bg-white bg-grid-pattern" style="position: relative; overflow: hidden;" aria-labelledby="contact-page-heading">
+    <?php render_motion_shapes(); ?>
+    
+<div class="page-container" style="position: relative; z-index: 2;">
 
     <div class="contact-grid">
 
@@ -242,12 +244,12 @@ $wa_num  = get_setting('whatsapp_number', '');
                     <textarea id="contact-message" name="message" rows="6" placeholder="Write your message here…" required><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
                 </div>
 
-                <div class="form-consent" style="margin-bottom: 1.5rem;">
+                <div class="form-consent mb-6">
                     <input type="checkbox" id="contactConsent" name="consent" required <?= isset($_POST['consent']) ? 'checked' : '' ?>>
-                    <label for="contactConsent">I consent to having this website store my submitted information so they can respond to my inquiry. <span class="required" style="color: #ef4444;">*</span></label>
+                    <label for="contactConsent">I consent to having this website store my submitted information so they can respond to my inquiry. <span class="required text-red">*</span></label>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width:100%;justify-content:center;display:flex;align-items:center;gap:.5rem;">
+                <button type="submit" class="btn-primary w-full flex-center-gap">
                     Send Message <i class="bx bx-send"></i>
                 </button>
             </form>
@@ -259,7 +261,7 @@ $wa_num  = get_setting('whatsapp_number', '');
                 <h3>Find Us</h3>
 
                 <div class="contact-detail">
-                    <div class="cd-icon"><i class="bx bx-map-pin"></i></div>
+                    <div class="cd-icon red"><i class="bx bx-map-pin"></i></div>
                     <div>
                         <strong>Address</strong>
                         <p style="letter-spacing:0.5px;"><?= nl2br(htmlspecialchars($address)) ?></p>
@@ -267,7 +269,7 @@ $wa_num  = get_setting('whatsapp_number', '');
                 </div>
 
                 <div class="contact-detail">
-                    <div class="cd-icon"><i class="bx bx-phone"></i></div>
+                    <div class="cd-icon red"><i class="bx bx-phone"></i></div>
                     <div>
                         <strong>Phone</strong>
                         <p><a href="tel:<?= htmlspecialchars(preg_replace('/\s+/', '', $phone)) ?>"><?= htmlspecialchars($phone) ?></a></p>
@@ -275,7 +277,7 @@ $wa_num  = get_setting('whatsapp_number', '');
                 </div>
 
                 <div class="contact-detail">
-                    <div class="cd-icon"><i class="bx bx-envelope"></i></div>
+                    <div class="cd-icon red"><i class="bx bx-envelope"></i></div>
                     <div>
                         <strong>Email</strong>
                         <p><a href="mailto:<?= htmlspecialchars($email_addr) ?>"><?= htmlspecialchars($email_addr) ?></a></p>
@@ -297,15 +299,15 @@ $wa_num  = get_setting('whatsapp_number', '');
                 <h3>Times of Service</h3>
                 <div class="service-time-list">
                     <div class="st-item">
-                        <span class="st-day"><i class="bx bx-sun"></i> Sunday Worship</span>
+                        <span class="st-day red"><i class="bx bx-sun"></i> Sunday Worship</span>
                         <span class="st-time">10:00 AM – 12:00 PM</span>
                     </div>
                     <div class="st-item">
-                        <span class="st-day"><i class="bx bx-heart"></i> Monday-Achievers Pray</span>
+                        <span class="st-day red"><i class="bx bx-heart"></i> Monday-Achievers Pray</span>
                         <span class="st-time">8:30 PM – 9:30 PM</span>
                     </div>
                     <div class="st-item">
-                        <span class="st-day"><i class="bx bx-book-open"></i> Wednesday-Bible Study</span>
+                        <span class="st-day red"><i class="bx bx-book-open"></i> Wednesday-Bible Study</span>
                         <span class="st-time">7:00 PM – 8:10 PM</span>
                     </div>
                 </div>

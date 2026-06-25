@@ -26,8 +26,9 @@ include 'includes/header.php';
     </section>
 
     <!-- ── ABOUT US — THE STORY ── -->
-    <section class="about-story" aria-labelledby="about-heading">
-        <div class="about-container">
+    <section class="about-story bg-grid-pattern" style="position: relative; overflow: hidden;" aria-labelledby="about-heading">
+        <?php render_motion_shapes(['red' => 'top: 10%; right: -5%; opacity: 0.12;', 'gold' => 'bottom: 15%; left: -5%; opacity: 0.12;', 'blue' => 'top: 40%; left: 30%; opacity: 0.08;']); ?>
+        <div class="about-container" style="position: relative; z-index: 1;">
             <div class="about-story-content reveal">
                 <span class="about-pill">WHO WE ARE</span>
                 <h2 id="about-heading">Christ Apostolic Church <span class="about-accent">Achievers House</span></h2>
@@ -45,8 +46,9 @@ include 'includes/header.php';
     </section>
 
     <!-- ── MEET THE PASTOR — Premium Profile ── -->
-    <section class="pastor-profile" aria-labelledby="pastor-heading">
-        <div class="about-container">
+    <section class="pastor-profile bg-grid-pattern" aria-labelledby="pastor-heading">
+        <?php render_motion_shapes(['red' => 'top: 15%; left: -5%; opacity: 0.1;', 'gold' => 'bottom: 10%; right: -5%; opacity: 0.1;', 'blue' => 'top: 35%; right: 25%; opacity: 0.06;']); ?>
+        <div class="about-container" style="position: relative; z-index: 1;">
             <div class="pastor-grid">
                 <div class="pastor-image-wrapper reveal">
                     <div class="pastor-image-frame">
@@ -76,8 +78,9 @@ include 'includes/header.php';
     </section>
 
     <!-- ── TIMES OF SERVICE ── -->
-    <section class="about-services" aria-labelledby="services-heading">
-        <div class="about-container">
+    <section class="about-services bg-grid-pattern" style="position: relative; overflow: hidden;" aria-labelledby="services-heading">
+        <?php render_motion_shapes(['red' => 'bottom: 10%; right: -5%; opacity: 0.12;', 'gold' => 'top: 15%; left: -5%; opacity: 0.12;', 'blue' => 'top: 40%; right: 30%; opacity: 0.08;']); ?>
+        <div class="about-container" style="position: relative; z-index: 1;">
             <div class="about-services-header reveal">
                 <span class="about-pill">JOIN US</span>
                 <h2 id="services-heading">Times of <span class="about-accent">Service</span></h2>

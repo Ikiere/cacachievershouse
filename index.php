@@ -70,8 +70,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 <!-- ============================================================
      SERVICE TIMES
      ============================================================ -->
-<section class="service-times" id="services" aria-labelledby="service-heading">
-    <div class="service-container">
+<section class="service-times bg-grid-pattern" id="services" aria-labelledby="service-heading">
+    <?php render_motion_shapes(); ?>
+    <div class="service-container" style="position: relative; z-index: 1;">
 
         <span class="section-badge">
             <i class="bx bx-time"></i> OUR SCHEDULE
@@ -117,8 +118,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 <!-- ============================================================
      ABOUT PREVIEW — Editorial split layout
      ============================================================ -->
-<section class="about-strip" aria-labelledby="about-heading">
-    <div class="about-strip-grid container">
+<section class="about-strip bg-grid-pattern" style="position: relative; overflow: hidden;" aria-labelledby="about-heading">
+    <?php render_motion_shapes(['red' => 'top: 15%; right: -5%; opacity: 0.12;', 'gold' => 'bottom: 10%; left: -5%; opacity: 0.12;', 'blue' => 'top: 35%; left: 30%; opacity: 0.08;']); ?>
+    <div class="about-strip-grid container" style="position: relative; z-index: 1;">
 
         <div class="about-strip-image reveal">
             <img src="assets/images/join-us.jpg"
@@ -129,7 +131,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
         <div class="about-strip-body reveal reveal-delay-1">
             <span class="section-badge"><i class="bx bx-info-circle"></i> WHO WE ARE</span>
             <h2 class="section-title" id="about-heading">
-                A Community of<br>Faith and <span>Purpose</span>
+                A Community of<br>Faith and <span class="text-red">Purpose</span>
             </h2>
             <p class="section-subtitle">
                 Experience a purpose-driven church where faith, love, and a passion for Christ thrives. Together, we grow in God's Word, encourage one another, and build lasting relationships and impact generations.
@@ -170,7 +172,8 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 <!-- ============================================================
      SERMONS PREVIEW — Dark navy section
      ============================================================ -->
-<section class="sermons-section" id="sermons" aria-labelledby="sermons-heading">
+<section class="sermons-section bg-grid-pattern-dark" id="sermons" aria-labelledby="sermons-heading">
+    <?php render_motion_shapes(['red' => 'top: 20%; left: -10%; opacity: 0.1;', 'gold' => 'bottom: 15%; right: -5%; opacity: 0.1;', 'blue' => 'top: 40%; right: 30%; opacity: 0.06;']); ?>
     <div class="container" style="text-align:center;position:relative;z-index:1;">
 
         <span class="section-badge">
@@ -229,8 +232,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 <!-- ============================================================
      MINISTRIES
      ============================================================ -->
-<section class="ministries" id="ministries" aria-labelledby="ministries-heading">
-    <div class="ministries-container">
+<section class="ministries bg-grid-pattern" id="ministries" aria-labelledby="ministries-heading">
+    <?php render_motion_shapes(['red' => 'bottom: 10%; left: -5%; opacity: 0.12;', 'gold' => 'top: 15%; right: -5%; opacity: 0.12;', 'blue' => 'top: 45%; left: 25%; opacity: 0.08;']); ?>
+    <div class="ministries-container" style="position: relative; z-index: 1;">
 
         <div class="ministries-header reveal">
             <div class="header-left">
@@ -238,7 +242,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                     <i class="bx bx-crown"></i> WHAT WE OFFER
                 </span>
                 <h2 class="section-title" id="ministries-heading">
-                    Our <span>Ministries</span>
+                    Our <span class="text-red">Ministries</span>
                 </h2>
             </div>
             <p class="header-right">
@@ -292,8 +296,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 <!-- ============================================================
      EVENTS
      ============================================================ -->
-<section class="events" id="events" aria-labelledby="events-heading">
-    <div class="events-container">
+<section class="events bg-grid-pattern" id="events" aria-labelledby="events-heading">
+    <?php render_motion_shapes(['red' => 'top: 10%; right: -8%; opacity: 0.1;', 'gold' => 'bottom: 15%; left: -5%; opacity: 0.1;', 'blue' => 'top: 35%; right: 35%; opacity: 0.06;']); ?>
+    <div class="events-container" style="position: relative; z-index: 1;">
 
         <span class="section-badge">
             <i class="bx bx-calendar-event"></i> WHAT'S HAPPENING
@@ -434,8 +439,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 <!-- ============================================================
      TESTIMONIALS
      ============================================================ -->
-<section class="testimonials" id="testimonials" aria-labelledby="testimonials-heading">
-    <div class="testimonials-container">
+<section class="testimonials bg-grid-pattern" id="testimonials" aria-labelledby="testimonials-heading">
+    <?php render_motion_shapes(['red' => 'top: 25%; left: -10%; opacity: 0.12;', 'gold' => 'bottom: 10%; right: -5%; opacity: 0.12;', 'blue' => 'top: 40%; left: 45%; opacity: 0.08;']); ?>
+    <div class="testimonials-container" style="position: relative; z-index: 1;">
 
         <span class="section-badge">
             <i class="bx bx-comment-dots"></i> TESTIMONIALS
@@ -489,8 +495,9 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
 <!-- ============================================================
      VISIT SECTION
      ============================================================ -->
-<section class="visit-section" id="contact" aria-labelledby="visit-heading">
-    <div class="visit-container">
+<section class="visit-section bg-grid-pattern-dark" id="contact" aria-labelledby="visit-heading">
+    <?php render_motion_shapes(['red' => 'top: 10%; left: -5%; opacity: 0.1;', 'gold' => 'bottom: 15%; right: -8%; opacity: 0.1;', 'blue' => 'top: 45%; right: 25%; opacity: 0.06;']); ?>
+    <div class="visit-container" style="position: relative; z-index: 1;">
 
         <div class="visit-left reveal">
             <span class="badge">
@@ -498,7 +505,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
             </span>
             <h1 id="visit-heading">
                 Visit Us<br>
-                This <span>Sunday</span>
+                This <span class="text-red">Sunday</span>
             </h1>
             <div class="underline"></div>
         </div>

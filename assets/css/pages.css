@@ -559,6 +559,11 @@
     flex-shrink: 0;
 }
 
+.cd-icon.red {
+    background: rgba(230, 57, 70, 0.1);
+    color: var(--accent-red);
+}
+
 .contact-detail strong {
     display: block;
     font-size: 0.9rem;
@@ -603,6 +608,10 @@
     color: #2563eb;
 }
 
+.st-day.red i {
+    color: var(--accent-red);
+}
+
 .st-time {
     font-size: 0.9rem;
     color: #64748b;
@@ -636,9 +645,10 @@
 }
 
 .contact-socials a:hover {
-    background: #2563eb;
+    background: var(--accent-red);
     color: #fff;
     transform: translateY(-3px);
+    box-shadow: 0 8px 20px var(--accent-red-glow);
 }
 
 
@@ -667,7 +677,8 @@
 
 .gallery-filter-btn:hover {
     background: #f8fafc;
-    color: #0f172a;
+    color: var(--accent-red);
+    border-color: var(--accent-red);
 }
 
 .gallery-filter-btn.active {
