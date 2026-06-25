@@ -105,7 +105,7 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
                 <div class="icon-box-1">
                     <i class="bx bx-book-open"></i>
                 </div>
-                <h3>Wednesday Bible Study</h3>
+                <h3>Wednesday-Bible Study</h3>
                 <span class="time accent">7:00 PM – 8:10 PM</span>
                 <p>Dive deeper into God's Word with interactive study sessions and transformative discussions.</p>
             </div>
