@@ -242,6 +242,11 @@ $wa_num  = get_setting('whatsapp_number', '');
                     <textarea id="contact-message" name="message" rows="6" placeholder="Write your message here…" required><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
                 </div>
 
+                <div class="form-consent" style="margin-bottom: 1.5rem;">
+                    <input type="checkbox" id="contactConsent" name="consent" required <?= isset($_POST['consent']) ? 'checked' : '' ?>>
+                    <label for="contactConsent">I consent to having this website store my submitted information so they can respond to my inquiry. <span class="required" style="color: #ef4444;">*</span></label>
+                </div>
+
                 <button type="submit" class="btn-primary" style="width:100%;justify-content:center;display:flex;align-items:center;gap:.5rem;">
                     Send Message <i class="bx bx-send"></i>
                 </button>

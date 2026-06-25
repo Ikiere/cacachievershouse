@@ -2313,3 +2313,27 @@ footer hr {
     .footer-grid { grid-template-columns: 1fr; }
     .sermons-grid { grid-template-columns: 1fr; }
 }
+
+/* Form Consent Checkbox */
+.form-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+.form-consent input[type="checkbox"] {
+    margin-top: 0.25rem;
+    width: auto;
+    flex-shrink: 0;
+}
+.form-consent label {
+    font-size: 0.85rem;
+    font-weight: normal;
+    color: var(--text-muted, #64748b);
+    line-height: 1.5;
+    margin: 0;
+}
+.subscribe-form-wrap .form-consent label {
+    color: rgba(255, 255, 255, 0.65);
+}

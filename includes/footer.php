@@ -108,12 +108,20 @@
                     Subscribe to receive updates, prayer requests,
                     and inspirational messages directly to your inbox.
                 </p>
-                <form class="subscribe-form" onsubmit="handleSubscribe(event)">
-                    <input type="email" id="subscribeEmail" placeholder="Your email address" required autocomplete="email">
-                    <button type="submit">
-                        Subscribe <i class="bx bx-right-arrow-alt"></i>
-                    </button>
-                </form>
+                <div class="subscribe-form-wrap">
+                    <form class="subscribe-form-container" onsubmit="handleSubscribe(event)">
+                        <div class="subscribe-form">
+                            <input type="email" id="subscribeEmail" placeholder="Your email address" required autocomplete="email">
+                            <button type="submit">
+                                Subscribe <i class="bx bx-right-arrow-alt"></i>
+                            </button>
+                        </div>
+                        <div class="form-consent">
+                            <input type="checkbox" id="subscribeConsent" required>
+                            <label for="subscribeConsent">I consent to receive emails and agree to the privacy policy.</label>
+                        </div>
+                    </form>
+                </div>
             </div>
 
         </div>
