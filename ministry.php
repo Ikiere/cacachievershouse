@@ -278,6 +278,18 @@ document.addEventListener('keydown', e => {
 mgLb.addEventListener('click', e => { if (e.target === mgLb) closeMgLightbox(); });
 </script>
 
+<script>
+/* ── SCROLL REVEAL (with Safari fallback) ── */
+if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+} else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+}
+</script>
+
 <?php include 'includes/footer.php'; ?>
 </body>
 </html>

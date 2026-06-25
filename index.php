@@ -528,16 +528,20 @@ if ($testimonials_result && $testimonials_result->num_rows > 0) {
      ============================================================ -->
 <script>
 /* ── SCROLL REVEAL ── */
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-        }
-    });
-}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+} else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+}
 
 /* ── ACTIVE NAV (scroll spy) ── */
 const sections  = document.querySelectorAll('section[id]');

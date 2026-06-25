@@ -83,7 +83,7 @@
                     <?php $address = get_setting('contact_address'); ?>
                     <?php if ($address): ?>
                     <li><span>
-                        <i class="bx bx-map-pin"></i> <span style="text-transform:uppercase;letter-spacing:0.5px;"><?= nl2br(htmlspecialchars($address)) ?></span>
+                        <i class="bx bx-map-pin"></i> <span style="letter-spacing:0.5px;"><?= nl2br(htmlspecialchars($address)) ?></span>
                     </span></li>
                     <?php endif; ?>
                 </ul>

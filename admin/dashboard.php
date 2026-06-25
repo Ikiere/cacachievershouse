@@ -1226,7 +1226,7 @@ function saveSettings(formId, statusId) {
             statusEl.classList.add('visible');
             setTimeout(() => statusEl.classList.remove('visible'), 3000);
         } else {
-            Swal.fire('Error', res.errors?.join('<br>') || 'Could not save.', 'error');
+            Swal.fire('Error', (res.errors ? res.errors.join('<br>') : '') || 'Could not save.', 'error');
         }
     })
     .catch(() => Swal.fire('Error', 'Network error — please try again.', 'error'));
@@ -1281,7 +1281,7 @@ document.getElementById('form-logo').addEventListener('submit', e => {
             }
             setTimeout(() => statusEl.classList.remove('visible'), 3000);
         } else {
-            Swal.fire('Upload Error', res.errors?.join('<br>') || 'Failed.', 'error');
+            Swal.fire('Upload Error', (res.errors ? res.errors.join('<br>') : '') || 'Failed.', 'error');
         }
     })
     .catch(() => {
@@ -1423,12 +1423,15 @@ function openAddMember() {
 }
 
 // Member table search
-document.getElementById('memberSearch')?.addEventListener('input', function () {
-    const q = this.value.toLowerCase();
-    document.querySelectorAll('#membersTable tbody tr').forEach(row => {
-        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+const memberSearch = document.getElementById('memberSearch');
+if (memberSearch) {
+    memberSearch.addEventListener('input', function () {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('#membersTable tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
     });
-});
+}
 
 // Removed old Event Modal logic
 

@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Dynamic contact details
 $phone   = get_setting('contact_phone', '+234 800 000 0000');
 $email_addr = get_setting('contact_email', 'info@cacachievers.com');
-$address = get_setting('contact_address', '12 Faith Avenue, Lagos, Nigeria');
+$address = get_setting('contact_address', 'Colville Common Room and Community Space, DE22 3AT');
 $map_embed = get_setting('map_embed_url', '');
 $fb_url  = get_setting('facebook_url', '#');
 $ig_url  = get_setting('instagram_url', '#');
@@ -257,7 +257,7 @@ $wa_num  = get_setting('whatsapp_number', '');
                     <div class="cd-icon"><i class="bx bx-map-pin"></i></div>
                     <div>
                         <strong>Address</strong>
-                        <p style="text-transform:uppercase;letter-spacing:0.5px;"><?= nl2br(htmlspecialchars($address)) ?></p>
+                        <p style="letter-spacing:0.5px;"><?= nl2br(htmlspecialchars($address)) ?></p>
                     </div>
                 </div>
 
@@ -372,10 +372,14 @@ $wa_num  = get_setting('whatsapp_number', '');
 
 <script>
 /* Scroll reveal */
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+} else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+}
 </script>
 </body>
 </html>

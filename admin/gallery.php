@@ -10,6 +10,12 @@ if (!isset($_SESSION['admin_id'])) {
 $error = '';
 $success = '';
 
+// Handle POST size limit overflow
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST) && empty($_FILES)) {
+    $maxSize = ini_get('post_max_size');
+    $error = "The uploaded file is too large. The server's POST size limit is " . htmlspecialchars($maxSize) . ". Please choose a smaller file.";
+}
+
 // Handle Upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
     $caption = trim(strip_tags($_POST['caption'] ?? ''));
@@ -17,61 +23,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
     if (!$category) $category = 'General';
 
     $file = $_FILES['image'];
-    $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+    $allowed_types = [
+        'image/jpeg', 
+        'image/jpg', 
+        'image/pjpeg', 
+        'image/png', 
+        'image/x-png', 
+        'image/webp'
+    ];
     
     if ($file['error'] !== UPLOAD_ERR_OK) {
-        $error = "Upload failed with error code: " . $file['error'];
+        switch ($file['error']) {
+            case UPLOAD_ERR_INI_SIZE:
+                $error = "The uploaded image is too large. Server limit is " . ini_get('upload_max_filesize') . ".";
+                break;
+            case UPLOAD_ERR_FORM_SIZE:
+                $error = "The uploaded image exceeds the limit specified in the form.";
+                break;
+            case UPLOAD_ERR_PARTIAL:
+                $error = "The image was only partially uploaded. Please try again.";
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                $error = "No image file was selected.";
+                break;
+            case UPLOAD_ERR_NO_TMP_DIR:
+                $error = "Server configuration error: missing temporary folder.";
+                break;
+            case UPLOAD_ERR_CANT_WRITE:
+                $error = "Failed to write the uploaded image to disk. Check folder permissions.";
+                break;
+            default:
+                $error = "Upload failed (Error code: " . $file['error'] . ").";
+                break;
+        }
     } elseif (!in_array($file['type'], $allowed_types)) {
         $error = "Only JPG, PNG and WEBP are allowed.";
-    } elseif ($file['size'] > 5 * 1024 * 1024) {
-        $error = "File size must be under 5MB.";
+    } elseif ($file['size'] > 10 * 1024 * 1024) {
+        $error = "File size must be under 10MB.";
     } else {
-        // Strip EXIF metadata & Rename file securely
+        // Map file extension safely
         switch ($file['type']) {
-            case 'image/png':  $ext = 'png';  break;
-            case 'image/webp': $ext = 'webp'; break;
-            default:           $ext = 'jpg';  break;
+            case 'image/png':
+            case 'image/x-png':
+                $ext = 'png';
+                break;
+            case 'image/webp':
+                $ext = 'webp';
+                break;
+            default:
+                $ext = 'jpg';
+                break;
         }
 
         $new_filename = time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-        $target_path = '../assets/gallery/' . $new_filename;
-
-        // Use GD to re-save the image, which strips EXIF metadata
-        $image = false;
-        if ($file['type'] === 'image/jpeg') {
-            $image = @imagecreatefromjpeg($file['tmp_name']);
-        } elseif ($file['type'] === 'image/png') {
-            $image = @imagecreatefrompng($file['tmp_name']);
-        } elseif ($file['type'] === 'image/webp') {
-            $image = @imagecreatefromwebp($file['tmp_name']);
+        $target_dir = '../assets/gallery/';
+        
+        // Ensure directory exists recursively
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0755, true);
         }
+        
+        $target_path = $target_dir . $new_filename;
 
-        if ($image) {
-            $saved = false;
-            if ($ext === 'jpg') {
-                $saved = imagejpeg($image, $target_path, 90);
-            } elseif ($ext === 'png') {
-                $saved = imagepng($image, $target_path);
-            } elseif ($ext === 'webp') {
-                $saved = imagewebp($image, $target_path, 90);
-            }
-            imagedestroy($image);
-
-            if ($saved) {
-                chmod($target_path, 0644);
-                $stmt = $conn->prepare("INSERT INTO gallery (filename, caption, category) VALUES (?, ?, ?)");
-                $stmt->bind_param("sss", $new_filename, $caption, $category);
-                if ($stmt->execute()) {
-                    $success = "Image uploaded securely.";
-                } else {
-                    $error = "Database error: " . $conn->error;
-                    unlink($target_path);
-                }
+        if (move_uploaded_file($file['tmp_name'], $target_path)) {
+            chmod($target_path, 0644);
+            $stmt = $conn->prepare("INSERT INTO gallery (filename, caption, category) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $new_filename, $caption, $category);
+            if ($stmt->execute()) {
+                $success = "Image uploaded securely.";
             } else {
-                $error = "Failed to process image.";
+                $error = "Database error: " . $conn->error;
+                @unlink($target_path);
             }
         } else {
-            $error = "Invalid image file.";
+            $error = "Failed to save uploaded image. Check directory write permissions.";
         }
     }
 }
@@ -312,7 +337,7 @@ $logo_path = $get('logo_path', 'assets/logo/cac-logo.png');
             <h3><i class='bx bx-cloud-upload'></i> Upload New Photo</h3>
             <form action="gallery.php" method="POST" enctype="multipart/form-data" style="margin-top:1.5rem; max-width:600px;">
                 <div class="form-group" style="margin-bottom:1.2rem;">
-                    <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.88rem; color:#475569;">Image File (JPG, PNG, WEBP — max 5MB) <span style="color:#ef4444;">*</span></label>
+                    <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.88rem; color:#475569;">Image File (JPG, PNG, WEBP — max 10MB) <span style="color:#ef4444;">*</span></label>
                     <input type="file" name="image" accept="image/jpeg, image/png, image/webp" required class="form-control premium-input">
                     <small style="color:#64748b;display:block;margin-top:0.3rem;">EXIF metadata (GPS, camera info) will be automatically stripped for security.</small>
                 </div>
@@ -397,20 +422,23 @@ if (toggle && sidebar && overlay) {
 }
 
 // Logout
-document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    Swal.fire({
-        title: 'Sign out?',
-        text: 'You will be logged out of the admin panel.',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#f97316',
-        confirmButtonText: 'Yes, sign out',
-        cancelButtonText: 'Stay here',
-        borderRadius: '14px'
-    }).then(r => {
-        if (r.isConfirmed) window.location.href = 'logout.php';
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        Swal.fire({
+            title: 'Sign out?',
+            text: 'You will be logged out of the admin panel.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#f97316',
+            confirmButtonText: 'Yes, sign out',
+            cancelButtonText: 'Stay here',
+            borderRadius: '14px'
+        }).then(r => {
+            if (r.isConfirmed) window.location.href = 'logout.php';
+        });
     });
-});
+}
 
 function deleteImage(id) {
     Swal.fire({
@@ -422,19 +450,33 @@ function deleteImage(id) {
         confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
         if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({ title: 'Deleting...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
             fetch('delete_gallery.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'id=' + id
+                body: 'id=' + id,
+                credentials: 'same-origin'
             })
-            .then(res => res.text())
+            .then(res => {
+                console.log('Delete response status:', res.status);
+                return res.text();
+            })
             .then(data => {
-                if (data === 'success') {
-                    document.getElementById('img-' + id).remove();
+                console.log('Delete response body:', JSON.stringify(data));
+                const cleaned = data.trim();
+                if (cleaned === 'success') {
+                    const el = document.getElementById('img-' + id);
+                    if (el) el.remove();
                     Swal.fire('Deleted!', 'The photo has been deleted.', 'success');
                 } else {
-                    Swal.fire('Error', data, 'error');
+                    Swal.fire('Error', 'Server responded: ' + cleaned, 'error');
                 }
+            })
+            .catch(err => {
+                console.error('Delete fetch error:', err);
+                Swal.fire('Network Error', 'Could not reach the server. Check your connection.', 'error');
             });
         }
     });

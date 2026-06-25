@@ -4,7 +4,6 @@
 // Premium $10,000 template layout
 // ============================================================
 require_once 'includes/config.php';
-$base = defined('BASE_URL') ? BASE_URL : '/';
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id <= 0) { header('Location: events.php'); exit; }

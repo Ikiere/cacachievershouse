@@ -15,6 +15,24 @@
         : $site_name . ' — ' . $site_tagline;
     // Inject primary color CSS variable from DB
     $primary_color = htmlspecialchars(get_setting('primary_color', '#f97316'));
+    if (!function_exists('darken_color')) {
+        function darken_color($hex, $percent = 15) {
+            $hex = ltrim($hex, '#');
+            if (strlen($hex) === 3) {
+                $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+            }
+            if (strlen($hex) !== 6) return '#000000';
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+            $factor = (100 - $percent) / 100;
+            $r = max(0, min(255, round($r * $factor)));
+            $g = max(0, min(255, round($g * $factor)));
+            $b = max(0, min(255, round($b * $factor)));
+            return sprintf("#%02x%02x%02x", $r, $g, $b);
+        }
+    }
+    $primary_color_dark = darken_color($primary_color, 15);
     ?>
     <title><?= $page_title ?></title>
 
@@ -50,7 +68,7 @@
     </script>
 
     <!-- Dynamic primary color from Site Settings -->
-    <style>:root { --primary: <?= $primary_color ?>; --primary-dark: color-mix(in srgb, <?= $primary_color ?> 85%, #000); }</style>
+    <style>:root { --primary: <?= $primary_color ?>; --primary-dark: <?= $primary_color_dark ?>; }</style>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,9 +79,9 @@
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
     <!-- Main CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/about.css">
-    <link rel="stylesheet" href="assets/css/pages.css">
-    <link rel="stylesheet" href="assets/css/single-event.css">
-    <link rel="stylesheet" href="assets/css/ministry.css">
+    <link rel="stylesheet" href="<?= $base ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= $base ?>assets/css/about.css">
+    <link rel="stylesheet" href="<?= $base ?>assets/css/pages.css">
+    <link rel="stylesheet" href="<?= $base ?>assets/css/single-event.css">
+    <link rel="stylesheet" href="<?= $base ?>assets/css/ministry.css">
 </head>

@@ -9,7 +9,6 @@ if (!function_exists('get_setting')) {
 }
 // Determine active page for nav highlighting
 $current = basename($_SERVER['PHP_SELF']);
-$base = defined('BASE_URL') ? BASE_URL : '/';
 
 // Fetch ministries for dropdown (graceful fallback if table missing)
 $nav_ministries = [];
@@ -220,7 +219,8 @@ $ministry_active = ($current === 'ministry.php');
                 const isOpen = desktopDropdown.classList.toggle('open');
                 desktopToggle.setAttribute('aria-expanded', isOpen);
                 if (isOpen) {
-                    desktopDropdown.querySelector('.nav-dropdown-menu a')?.focus();
+                    const firstLink = desktopDropdown.querySelector('.nav-dropdown-menu a');
+                    if (firstLink) firstLink.focus();
                 }
             }
         });

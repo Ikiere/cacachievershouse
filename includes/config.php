@@ -62,6 +62,9 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', $script_dir . '/');
 }
 
+// Global shorthand — available to every page after require_once config.php
+$base = defined('BASE_URL') ? BASE_URL : '/';
+
 // ============================================================
 // SITE SETTINGS HELPER
 // Reads from the site_settings table with an in-memory cache

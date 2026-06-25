@@ -143,9 +143,10 @@ $conn->query("INSERT IGNORE INTO `site_settings` (`setting_key`, `setting_value`
     ('site_name',     'CAC Achievers House'),
     ('site_tagline',  'Where Faith Meets Destiny'),
     ('primary_color', '#f97316')");
-$results[] = $conn->affected_rows >= 0
-    ? "✅ Default site settings seeded"
-    : "❌ Default site settings — " . $conn->error;
+$conn->query("INSERT INTO `site_settings` (`setting_key`, `setting_value`) VALUES
+    ('contact_address', 'Colville Common Room and Community Space, DE22 3AT')
+    ON DUPLICATE KEY UPDATE `setting_value` = VALUES(`setting_value`)");
+$results[] = "✅ Default site settings populated & address casing updated";
 
 // ============================================================
 // 5. SEED MINISTRIES (INSERT IGNORE — safe to re-run)
